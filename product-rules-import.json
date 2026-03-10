@@ -1,0 +1,87 @@
+[
+  {
+    "substrate": "Aluminium",
+    "contamination": "General dirt / traffic film",
+    "productName": "Alu Clean",
+    "dilution": "Ready to use (undiluted)",
+    "applicationSteps": [
+      "Always perform a test patch first",
+      "Apply Alu Clean using a low-pressure sprayer, brush or sponge",
+      "Rinse immediately with clean water and assess the effect",
+      "Cleaning with a white pad or scrubbing sponge will accelerate the effect",
+      "Repeat if necessary and extend soaking time by a few minutes"
+    ],
+    "safetyGuidelines": "Do not use on electrolytically galvanized surfaces. Do not use in full sun or on hot surfaces. Ensure good ventilation when using indoors. Do not mix with other products. Contains ammonium bifluoride."
+  },
+  {
+    "substrate": "Aluminium",
+    "contamination": "Rust / oxide",
+    "productName": "Alu Clean",
+    "dilution": "Ready to use (undiluted)",
+    "applicationSteps": [
+      "Always perform a test patch first",
+      "Apply Alu Clean using a low-pressure sprayer, brush or sponge",
+      "Rinse immediately with clean water and assess the effect",
+      "Cleaning with a white pad or scrubbing sponge will accelerate the effect",
+      "Repeat if necessary and extend soaking time by a few minutes"
+    ],
+    "safetyGuidelines": "Do not use on electrolytically galvanized surfaces. Do not use in full sun or on hot surfaces. Ensure good ventilation when using indoors. Do not mix with other products. Contains ammonium bifluoride."
+  },
+  {
+    "substrate": "Concrete",
+    "contamination": "Efflorescence / cement veil",
+    "productName": "Cement Efflorescence Cleaner",
+    "dilution": "Ready to use (undiluted)",
+    "applicationSteps": [
+      "Apply undiluted Cement Efflorescence Cleaner to the surface with a brush",
+      "Allow to work for 5 to 10 minutes",
+      "Scrub the dirt with a sponge or cleaning brush",
+      "Rinse the surface thoroughly with water",
+      "Repeat if necessary"
+    ],
+    "safetyGuidelines": "Do not dilute or mix with other products. Be careful when using alkaline products. Ensure good ventilation when using indoors. Contains hydrochloric acid and sulfuric acid. Wear protective gloves and eye protection."
+  },
+  {
+    "substrate": "Brick",
+    "contamination": "Efflorescence / cement veil",
+    "productName": "Cement Efflorescence Cleaner",
+    "dilution": "Ready to use (undiluted)",
+    "applicationSteps": [
+      "Apply undiluted Cement Efflorescence Cleaner to the surface with a brush",
+      "Allow to work for 5 to 10 minutes",
+      "Scrub the dirt with a sponge or cleaning brush",
+      "Rinse the surface thoroughly with water",
+      "Repeat if necessary"
+    ],
+    "safetyGuidelines": "Do not dilute or mix with other products. Be careful when using alkaline products. Ensure good ventilation when using indoors. Contains hydrochloric acid and sulfuric acid. Wear protective gloves and eye protection."
+  },
+  {
+    "substrate": "Paving stones",
+    "contamination": "Efflorescence / cement veil",
+    "productName": "Cement Efflorescence Cleaner",
+    "dilution": "Ready to use (undiluted)",
+    "applicationSteps": [
+      "Apply undiluted Cement Efflorescence Cleaner to the surface with a brush",
+      "Allow to work for 5 to 10 minutes",
+      "Scrub the dirt with a sponge or cleaning brush",
+      "Rinse the surface thoroughly with water",
+      "Repeat if necessary"
+    ],
+    "safetyGuidelines": "Do not dilute or mix with other products. Be careful when using alkaline products. Ensure good ventilation when using indoors. Contains hydrochloric acid and sulfuric acid. Wear protective gloves and eye protection."
+  },
+  {
+    "substrate": "Natural stone (hard)",
+    "contamination": "Efflorescence / cement veil",
+    "productName": "Cement Efflorescence Cleaner",
+    "dilution": "Ready to use (undiluted)",
+    "applicationSteps": [
+      "Test on an inconspicuous area first - not suitable for all natural stone types",
+      "Apply undiluted Cement Efflorescence Cleaner to the surface with a brush",
+      "Allow to work for 5 to 10 minutes",
+      "Scrub the dirt with a sponge or cleaning brush",
+      "Rinse the surface thoroughly with water",
+      "Repeat if necessary"
+    ],
+    "safetyGuidelines": "IMPORTANT: Only suitable for acid-resistant natural stone. Do not use on soft or acid-sensitive stone. Always test first. Contains hydrochloric acid and sulfuric acid. Wear protective gloves and eye protection."
+  }
+]

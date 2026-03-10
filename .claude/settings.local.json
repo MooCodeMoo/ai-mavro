@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(node --version:*)",
+      "Bash(npm --version:*)",
+      "Bash(./node_modules/.bin/next:*)",
+      "Bash(gtimeout 12 ./node_modules/.bin/next dev:*)",
+      "Bash(echo:*)",
+      "Bash(lsof:*)",
+      "Bash(node -e \"require\\(''./node_modules/better-sqlite3''\\)\")",
+      "Bash(node -e:*)",
+      "Bash(pkill:*)",
+      "Bash(kill:*)",
+      "Bash(./node_modules/.bin/tsc:*)",
+      "Bash(timeout 30 node:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(pip3 install:*)",
+      "Bash(node node_modules/typescript/bin/tsc:*)"
+    ]
+  }
+}
