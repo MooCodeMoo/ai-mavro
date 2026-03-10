@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { findProduct, findAlternatives, getProductUrl, type Product } from "@/lib/products";
+import { translations, type LanguageCode } from "@/lib/translations";
 
 const SUBSTRATES = [
   "Concrete",
@@ -228,6 +229,8 @@ function getRecommendation(
 
 export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
+  const [language, setLanguage] = useState<LanguageCode>("en");
+  const t = translations[language];
   const [substrate, setSubstrate] = useState<string | null>(null);
   const [contamination, setContamination] = useState<string | null>(null);
   const [photos, setPhotos] = useState<string[]>([]);
@@ -270,11 +273,14 @@ export default function Home() {
   useEffect(() => {
     const saved = localStorage.getItem("mavro-dark-mode");
     if (saved === "true") setDarkMode(true);
+    const lang = localStorage.getItem("mavro-language");
+    if (lang === "en" || lang === "nl" || lang === "sl") setLanguage(lang);
   }, []);
 
   useEffect(() => {
     localStorage.setItem("mavro-dark-mode", String(darkMode));
-  }, [darkMode]);
+    localStorage.setItem("mavro-language", language);
+  }, [darkMode, language]);
 
   const dm = darkMode;
 
@@ -368,7 +374,7 @@ export default function Home() {
       const data = await res.json();
 
       if (res.ok) {
-        setLastMessage("✓ Uspešno shranjeno");
+        setLastMessage(t.step4.saveSuccess);
         console.log("Server response:", data);
       } else {
         setLastMessage("Server responded with an error.");
@@ -506,13 +512,23 @@ export default function Home() {
               className="h-9 md:h-11 w-auto brightness-0 invert"
             />
             <p className="text-[#f5a623] text-[10px] font-bold tracking-widest mt-1 uppercase">
-              Površinska izboljševalna tehnologija
+              {t.header.tagline}
             </p>
-            <p className="text-slate-400 text-[10px]">Surface Improvement Technology</p>
+            <p className="text-slate-400 text-[10px]">{t.header.subtitle}</p>
           </div>
+          <div className="flex items-center gap-2">
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as LanguageCode)}
+              className={`text-xs font-medium px-2 py-1.5 rounded-lg border cursor-pointer transition-colors ${dm ? "bg-slate-700 border-slate-600 text-white" : "bg-white/10 border-white/20 text-white"} focus:outline-none focus:ring-2 focus:ring-[#a855a7]`}
+            >
+              <option value="en">🇬🇧 EN</option>
+              <option value="nl">🇳🇱 NL</option>
+              <option value="sl">🇸🇮 SL</option>
+            </select>
           <button
             onClick={() => setDarkMode(!dm)}
-            aria-label="Toggle dark mode"
+            aria-label={t.header.darkModeLabel}
             className="w-10 h-10 rounded-full flex items-center justify-center touch-manipulation transition-colors bg-white/10 hover:bg-white/20 text-white"
           >
             {dm ? (
@@ -525,6 +541,7 @@ export default function Home() {
               </svg>
             )}
           </button>
+          </div>
         </div>
       </header>
       <main className="relative py-6 px-0 pb-safe">
@@ -537,36 +554,36 @@ export default function Home() {
               {/* Customer Information */}
               <section className={`rounded-lg shadow-md border p-4 space-y-3 transition-colors duration-200 ${dm ? "bg-slate-800 border-slate-700" : "bg-white border-gray-200"}`}>
                 <div className="flex items-center justify-between">
-                  <h2 className={`text-base font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>Informacije o stranki <span className="text-xs font-normal text-gray-400 ml-2">Customer Information</span></h2>
-                  <span className={`text-xs font-medium ${dm ? "text-slate-400" : "text-gray-400"}`}>Optional</span>
+                  <h2 className={`text-base font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>{t.customerInfo.title}</h2>
+                  <span className={`text-xs font-medium ${dm ? "text-slate-400" : "text-gray-400"}`}>{t.customerInfo.optional}</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className={`block text-xs font-semibold mb-1 ${dm ? "text-slate-300" : "text-gray-600"}`}>Ime stranke</label>
+                    <label className={`block text-xs font-semibold mb-1 ${dm ? "text-slate-300" : "text-gray-600"}`}>{t.customerInfo.customerName}</label>
                     <input
                       type="text"
-                      placeholder="npr. Janez Novak"
+                      placeholder={t.customerInfo.customerNamePlaceholder}
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
                       className={`w-full border rounded-lg px-3 py-3 md:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#a855a7] focus:border-transparent focus:scale-[1.02] transition-all duration-200 touch-manipulation ${dm ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-700"}`}
                     />
                   </div>
                   <div>
-                    <label className={`block text-xs font-semibold mb-1 ${dm ? "text-slate-300" : "text-gray-600"}`}>Lokacija projekta</label>
+                    <label className={`block text-xs font-semibold mb-1 ${dm ? "text-slate-300" : "text-gray-600"}`}>{t.customerInfo.projectLocation}</label>
                     <input
                       type="text"
-                      placeholder="npr. Stavba A, Ljubljana"
+                      placeholder={t.customerInfo.projectLocationPlaceholder}
                       value={projectLocation}
                       onChange={(e) => setProjectLocation(e.target.value)}
                       className={`w-full border rounded-lg px-3 py-3 md:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#a855a7] focus:border-transparent focus:scale-[1.02] transition-all duration-200 touch-manipulation ${dm ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-700"}`}
                     />
                   </div>
                   <div>
-                    <label className={`block text-xs font-semibold mb-1 ${dm ? "text-slate-300" : "text-gray-600"}`}>Kontaktni podatki</label>
+                    <label className={`block text-xs font-semibold mb-1 ${dm ? "text-slate-300" : "text-gray-600"}`}>{t.customerInfo.contactInfo}</label>
                     <input
                       type="text"
-                      placeholder="e.g., +386 40 123 456"
+                      placeholder={t.customerInfo.contactInfoPlaceholder}
                       value={contactInfo}
                       onChange={(e) => setContactInfo(e.target.value)}
                       className={`w-full border rounded-lg px-3 py-3 md:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#a855a7] focus:border-transparent focus:scale-[1.02] transition-all duration-200 touch-manipulation ${dm ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-700"}`}
@@ -574,7 +591,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <p className={`text-xs ${dm ? "text-slate-400" : "text-gray-500"}`}>💡 Podatki o stranki bodo personalizirali PDF poročilo</p>
+                <p className={`text-xs ${dm ? "text-slate-400" : "text-gray-500"}`}>{t.customerInfo.tip}</p>
               </section>
 
               {/* Step 1: Image Upload */}
@@ -583,7 +600,7 @@ export default function Home() {
                   <div className="w-7 h-7 rounded-full bg-[#a855a7] flex items-center justify-center text-white text-sm font-bold">
                     1
                   </div>
-                  <h2 className={`text-lg font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>Naloži fotografijo površine</h2>
+                  <h2 className={`text-lg font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>{t.step1.title}</h2>
                 </div>
 
                 <div
@@ -602,7 +619,7 @@ export default function Home() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    Take Photo
+                    {t.step1.takePhoto}
                   </label>
                   <label
                     htmlFor="photo-upload"
@@ -612,7 +629,7 @@ export default function Home() {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    {photos.length > 0 ? `Add More (${photos.length}/5)` : "Select Images"}
+                    {photos.length > 0 ? t.step1.addMore(photos.length) : t.step1.selectImages}
                   </label>
 
                   {photos.length > 0 && (
@@ -628,14 +645,14 @@ export default function Home() {
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
-                          Analyzing...
+                          {t.step1.analyzing}
                         </>
                       ) : (
                         <>
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                           </svg>
-                          Analyze with AI
+                          {t.step1.analyzeAI}
                         </>
                       )}
                     </button>
@@ -664,13 +681,13 @@ export default function Home() {
                     {/* Count + Clear All */}
                     <div className="flex items-center justify-between">
                       <span className={`text-xs font-medium ${dm ? "text-slate-400" : "text-gray-500"}`}>
-                        {photos.length} image{photos.length !== 1 ? "s" : ""} selected{photos.length === 5 ? " (max)" : ""}
+                        {t.step1.imagesSelected(photos.length)}{photos.length === 5 ? t.step1.imagesMax : ""}
                       </span>
                       <button
                         onClick={clearAllImages}
                         className={`text-xs underline transition-colors ${dm ? "text-slate-400 hover:text-slate-200" : "text-gray-400 hover:text-gray-600"}`}
                       >
-                        Clear all
+                        {t.step1.clearAll}
                       </button>
                     </div>
 
@@ -698,7 +715,7 @@ export default function Home() {
                           <button
                             onClick={() => removeImage(i)}
                             disabled={analyzing}
-                            aria-label="Remove image"
+                            aria-label={t.step1.removeImage}
                             className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-red-500 hover:bg-red-600 text-white flex items-center justify-center transition-colors disabled:opacity-40"
                           >
                             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -748,13 +765,13 @@ export default function Home() {
                                 {i + 1}
                               </div>
                               <h3 className={`text-sm font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>
-                                Slika {i + 1} — AI Analiza
+                                {t.step1.aiAnalysisTitle(i + 1)}
                               </h3>
                             </div>
                             <div className="grid sm:grid-cols-2 gap-3">
                               {analysis.detectedContamination && (
                                 <div className={`rounded-lg p-3 border transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md ${dm ? "bg-slate-800 border-slate-600" : "bg-white border-gray-200"}`}>
-                                  <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${dm ? "text-slate-400" : "text-gray-500"}`}>Umazanija</p>
+                                  <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${dm ? "text-slate-400" : "text-gray-500"}`}>{t.step1.contamination}</p>
                                   <p className={`text-sm font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>{analysis.detectedContamination}</p>
                                   <div className="mt-2 flex items-center gap-2">
                                     <div className={`flex-1 h-1.5 rounded-full overflow-hidden ${dm ? "bg-slate-600" : "bg-gray-200"}`}>
@@ -766,7 +783,7 @@ export default function Home() {
                               )}
                               {analysis.surfaceSuggestion && (
                                 <div className={`rounded-lg p-3 border transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-md ${dm ? "bg-slate-800 border-slate-600" : "bg-white border-gray-200"}`}>
-                                  <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${dm ? "text-slate-400" : "text-gray-500"}`}>Vrsta površine</p>
+                                  <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${dm ? "text-slate-400" : "text-gray-500"}`}>{t.step1.surfaceType}</p>
                                   <p className={`text-sm font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>{analysis.surfaceSuggestion}</p>
                                 </div>
                               )}
@@ -791,7 +808,7 @@ export default function Home() {
                   <div className={`w-full border-t ${dm ? "border-slate-600" : "border-gray-200"}`}></div>
                 </div>
                 <div className="relative flex justify-center">
-                  <span className={`px-3 text-xs font-medium ${dm ? "bg-slate-800 text-slate-400" : "bg-white text-gray-500"}`}>Potrdite podatke</span>
+                  <span className={`px-3 text-xs font-medium ${dm ? "bg-slate-800 text-slate-400" : "bg-white text-gray-500"}`}>{t.divider}</span>
                 </div>
               </div>
 
@@ -801,7 +818,7 @@ export default function Home() {
                   <div className="w-7 h-7 rounded-full bg-[#a855a7] flex items-center justify-center text-white text-sm font-bold">
                     2
                   </div>
-                  <h2 className={`text-lg font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>Vrsta površine</h2>
+                  <h2 className={`text-lg font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>{t.step2.title}</h2>
                 </div>
 
                 <div className="relative">
@@ -810,9 +827,9 @@ export default function Home() {
                     value={substrate ?? ""}
                     onChange={(e) => setSubstrate(e.target.value || null)}
                   >
-                    <option value="">Select surface type...</option>
+                    <option value="">{t.step2.placeholder}</option>
                     {SUBSTRATES.map((s) => (
-                      <option key={s} value={s}>{s}</option>
+                      <option key={s} value={s}>{t.surfaces[s] ?? s}</option>
                     ))}
                   </select>
                   <div className={`pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 ${dm ? "text-slate-400" : "text-gray-400"}`}>
@@ -829,7 +846,7 @@ export default function Home() {
                   <div className="w-7 h-7 rounded-full bg-[#a855a7] flex items-center justify-center text-white text-sm font-bold">
                     3
                   </div>
-                  <h2 className={`text-lg font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>Vrsta umazanije</h2>
+                  <h2 className={`text-lg font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>{t.step3.title}</h2>
                 </div>
 
                 <div className="relative">
@@ -838,9 +855,9 @@ export default function Home() {
                     value={contamination ?? ""}
                     onChange={(e) => setContamination(e.target.value || null)}
                   >
-                    <option value="">Select contamination type...</option>
+                    <option value="">{t.step3.placeholder}</option>
                     {CONTAMINATIONS.map((c) => (
-                      <option key={c} value={c}>{c}</option>
+                      <option key={c} value={c}>{t.contaminations[c] ?? c}</option>
                     ))}
                   </select>
                   <div className={`pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 ${dm ? "text-slate-400" : "text-gray-400"}`}>
@@ -857,7 +874,7 @@ export default function Home() {
                   <div className="w-7 h-7 rounded-full bg-[#a855a7] flex items-center justify-center text-white text-sm font-bold">
                     4
                   </div>
-                  <h2 className={`text-lg font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>Priporočilo za zdravljenje</h2>
+                  <h2 className={`text-lg font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>{t.step4.title}</h2>
                 </div>
 
                 {!substrate || !contamination ? (
@@ -866,14 +883,14 @@ export default function Home() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <p className={`text-sm font-medium ${dm ? "text-slate-300" : "text-gray-600"}`}>
-                      Izberite vrsto površine in umazanije za priporočilo.
+                      {t.step4.emptyState}
                     </p>
                   </div>
                 ) : recommendation ? (
                   <div className={`animate-fade-in rounded-lg border overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl ${dm ? "bg-slate-800 border-slate-700" : "bg-white border-gray-300"}`}>
                     <div className="bg-[#3d4f5c] px-4 py-3">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-white font-bold text-base">Rešitev za površino</h3>
+                        <h3 className="text-white font-bold text-base">{t.step4.cardTitle}</h3>
                         <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
@@ -888,7 +905,7 @@ export default function Home() {
                           </svg>
                         </div>
                         <div>
-                          <p className={`text-xs font-semibold uppercase tracking-wide mb-0.5 ${dm ? "text-slate-400" : "text-gray-500"}`}>Priporočen izdelek</p>
+                          <p className={`text-xs font-semibold uppercase tracking-wide mb-0.5 ${dm ? "text-slate-400" : "text-gray-500"}`}>{t.step4.recommendedProduct}</p>
                           <p className={`text-base font-bold ${dm ? "text-slate-100" : "text-gray-900"}`}>{recommendation.product}</p>
                         </div>
                       </div>
@@ -896,13 +913,13 @@ export default function Home() {
                       {/* Feature badges */}
                       <div className="flex flex-wrap gap-2 mt-2">
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${dm ? "bg-emerald-900/20 text-emerald-400" : "bg-emerald-50 text-emerald-700"}`}>
-                          <span>🌱</span><span>Biorazgradljivo</span>
+                          <span>🌱</span><span>{t.step4.badges.biodegradable}</span>
                         </span>
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${dm ? "bg-blue-900/20 text-blue-400" : "bg-blue-50 text-blue-700"}`}>
-                          <span>⚡</span><span>Hitro in učinkovito</span>
+                          <span>⚡</span><span>{t.step4.badges.fast}</span>
                         </span>
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${dm ? "bg-purple-900/20 text-purple-400" : "bg-purple-50 text-purple-700"}`}>
-                          <span>⭐</span><span>Profesionalna kakovost</span>
+                          <span>⭐</span><span>{t.step4.badges.professional}</span>
                         </span>
                       </div>
 
@@ -918,10 +935,10 @@ export default function Home() {
                                 <span className={`text-lg font-bold ${dm ? "text-white" : "text-gray-800"}`}>
                                   €{catalogProduct.price.toFixed(2)}
                                 </span>
-                                <span className={`text-xs ${dm ? "text-slate-400" : "text-gray-400"}`}>/L</span>
+                                <span className={`text-xs ${dm ? "text-slate-400" : "text-gray-400"}`}>{t.step4.perLitre}</span>
                               </div>
                               <div className={`text-xs font-semibold ${catalogProduct.inStock ? "text-green-500" : "text-amber-500"}`}>
-                                {catalogProduct.inStock ? "✓ In Stock" : "⚠ Low Stock"}
+                                {catalogProduct.inStock ? t.step4.inStock : t.step4.lowStock}
                               </div>
                             </div>
                           </div>
@@ -942,19 +959,19 @@ export default function Home() {
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.647 9M16 13v9m-4-9v9m5-9l2.647 9" />
                             </svg>
-                            Order {catalogProduct.name}
+                            {t.step4.orderButton(catalogProduct.name)}
                           </a>
                         </div>
                       )}
 
                       <div className="grid sm:grid-cols-2 gap-3">
                         <div className={`rounded-lg p-3 border ${dm ? "bg-slate-700 border-slate-600" : "bg-gray-50 border-gray-200"}`}>
-                          <p className={`text-xs font-semibold uppercase tracking-wide mb-0.5 ${dm ? "text-slate-400" : "text-gray-600"}`}>Površina</p>
-                          <p className={`text-sm font-medium ${dm ? "text-slate-200" : "text-gray-800"}`}>{substrate}</p>
+                          <p className={`text-xs font-semibold uppercase tracking-wide mb-0.5 ${dm ? "text-slate-400" : "text-gray-600"}`}>{t.step4.surface}</p>
+                          <p className={`text-sm font-medium ${dm ? "text-slate-200" : "text-gray-800"}`}>{substrate && (t.surfaces[substrate] ?? substrate)}</p>
                         </div>
                         <div className={`rounded-lg p-3 border ${dm ? "bg-slate-700 border-slate-600" : "bg-gray-50 border-gray-200"}`}>
-                          <p className={`text-xs font-semibold uppercase tracking-wide mb-0.5 ${dm ? "text-slate-400" : "text-gray-600"}`}>Umazanija</p>
-                          <p className={`text-sm font-medium ${dm ? "text-slate-200" : "text-gray-800"}`}>{contamination}</p>
+                          <p className={`text-xs font-semibold uppercase tracking-wide mb-0.5 ${dm ? "text-slate-400" : "text-gray-600"}`}>{t.step4.contamination}</p>
+                          <p className={`text-sm font-medium ${dm ? "text-slate-200" : "text-gray-800"}`}>{contamination && (t.contaminations[contamination] ?? contamination)}</p>
                         </div>
                       </div>
 
@@ -966,7 +983,7 @@ export default function Home() {
                             </svg>
                           </div>
                           <div className="flex-1">
-                            <p className={`text-xs font-semibold mb-0.5 ${dm ? "text-slate-300" : "text-gray-700"}`}>Razmerje redčenja</p>
+                            <p className={`text-xs font-semibold mb-0.5 ${dm ? "text-slate-300" : "text-gray-700"}`}>{t.step4.dilution}</p>
                             <p className={`text-sm ${dm ? "text-slate-300" : "text-gray-700"}`}>{recommendation.dilution}</p>
                           </div>
                         </div>
@@ -977,7 +994,7 @@ export default function Home() {
                           <svg className={`w-4 h-4 ${dm ? "text-slate-400" : "text-gray-600"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                           </svg>
-                          Navodila za uporabo
+                          {t.step4.applicationSteps}
                         </h4>
                         <div className="space-y-2">
                           {recommendation.steps.map((step, index) => (
@@ -999,7 +1016,7 @@ export default function Home() {
                             </svg>
                           </div>
                           <div className="flex-1">
-                            <p className={`text-xs font-bold mb-1 ${dm ? "text-slate-300" : "text-gray-700"}`}>Varnostna navodila</p>
+                            <p className={`text-xs font-bold mb-1 ${dm ? "text-slate-300" : "text-gray-700"}`}>{t.step4.safety}</p>
                             <p className={`text-sm leading-relaxed ${dm ? "text-slate-300" : "text-gray-700"}`}>{recommendation.safety}</p>
                           </div>
                         </div>
@@ -1018,14 +1035,14 @@ export default function Home() {
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                               </svg>
-                              Saving...
+                              {t.step4.saving}
                             </>
                           ) : (
                             <>
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                               </svg>
-                              Shrani načrt
+                              {t.step4.savePlan}
                             </>
                           )}
                         </button>
@@ -1038,19 +1055,19 @@ export default function Home() {
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
-                          Prenesi PDF
+                          {t.step4.downloadPDF}
                         </button>
                       </div>
 
                       {/* Email row */}
                       <div className={`mt-1 rounded-lg border p-3 space-y-2 ${dm ? "bg-slate-700 border-slate-600" : "bg-gray-50 border-gray-200"}`}>
                         <label className={`block text-xs font-semibold ${dm ? "text-slate-300" : "text-gray-600"}`}>
-                          Pošlji poročilo po e-pošti <span className={`font-normal ${dm ? "text-slate-400" : "text-gray-400"}`}>(neobvezno)</span>
+                          {t.step4.emailLabel} <span className={`font-normal ${dm ? "text-slate-400" : "text-gray-400"}`}>{t.step4.emailOptional}</span>
                         </label>
                         <div className="flex gap-2">
                           <input
                             type="email"
-                            placeholder="customer@example.com"
+                            placeholder={t.step4.emailPlaceholder}
                             value={recipientEmail}
                             onChange={(e) => setRecipientEmail(e.target.value)}
                             className={`flex-1 border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#a855a7] focus:border-transparent transition-all duration-200 ${dm ? "bg-slate-800 border-slate-600 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-700"} ${recipientEmail && !isValidEmail(recipientEmail) ? "border-red-400 focus:ring-red-400" : ""}`}
@@ -1067,27 +1084,27 @@ export default function Home() {
                                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                                 </svg>
-                                Sending...
+                                {t.step4.sendingEmail}
                               </>
                             ) : (
                               <>
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
-                                Send Email
+                                {t.step4.sendEmail}
                               </>
                             )}
                           </button>
                         </div>
                         {recipientEmail && !isValidEmail(recipientEmail) && (
-                          <p className="text-xs text-red-500">Vnesite veljavni e-naslov</p>
+                          <p className="text-xs text-red-500">{t.step4.invalidEmail}</p>
                         )}
                         {emailSuccess && (
                           <div className="animate-bounce-once flex items-center gap-2 text-green-600 font-semibold text-sm py-0.5">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            E-pošta uspešno poslana!
+                            {t.step4.emailSent}
                           </div>
                         )}
                       </div>
@@ -1096,7 +1113,7 @@ export default function Home() {
                       {catalogAlternatives.length > 0 && (
                         <div className={`rounded-lg border p-3 ${dm ? "bg-slate-700 border-slate-600" : "bg-gray-50 border-gray-200"}`}>
                           <p className={`text-xs font-semibold mb-2 ${dm ? "text-slate-300" : "text-gray-600"}`}>
-                            Alternativni izdelki
+                            {t.step4.alternatives}
                           </p>
                           <div className="space-y-2">
                             {catalogAlternatives.map((alt) => (
@@ -1111,7 +1128,7 @@ export default function Home() {
                                   rel="noopener noreferrer"
                                   className={`ml-3 flex-shrink-0 text-xs font-semibold px-3 py-1.5 rounded-md border transition-all hover:scale-105 ${dm ? "border-slate-500 text-slate-300 hover:bg-slate-600" : "border-gray-300 text-gray-600 hover:bg-gray-100"}`}
                                 >
-                                  View →
+                                  {t.step4.viewAlt}
                                 </a>
                               </div>
                             ))}
@@ -1124,7 +1141,7 @@ export default function Home() {
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                          PDF uspešno prenesen
+                          {t.step4.pdfSuccess}
                         </div>
                       )}
                       {!pdfSuccess && lastMessage && (
@@ -1139,9 +1156,9 @@ export default function Home() {
                     <svg className={`w-12 h-12 mx-auto mb-3 ${dm ? "text-slate-500" : "text-gray-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className={`font-semibold mb-1 text-sm ${dm ? "text-slate-200" : "text-gray-700"}`}>Ni priporočila</p>
+                    <p className={`font-semibold mb-1 text-sm ${dm ? "text-slate-200" : "text-gray-700"}`}>{t.step4.noRecommendationTitle}</p>
                     <p className={`text-sm ${dm ? "text-slate-300" : "text-gray-600"}`}>
-                      Za to kombinacijo nimamo priporočila. Prosimo, kontaktirajte Mavro tehnično podporo.
+                      {t.step4.noRecommendationText}
                     </p>
                   </div>
                 )}
@@ -1155,7 +1172,7 @@ export default function Home() {
 
               {/* Column 1: Contact */}
               <div>
-                <h3 className="text-white font-bold mb-3 text-xs uppercase tracking-widest">Kontakt</h3>
+                <h3 className="text-white font-bold mb-3 text-xs uppercase tracking-widest">{t.footer.contact}</h3>
                 <p className="text-slate-300 leading-relaxed text-xs">
                   Mavro Slovenija<br/>
                   Kajakaška cesta 40<br/>
@@ -1167,33 +1184,33 @@ export default function Home() {
 
               {/* Column 2: Quick links */}
               <div>
-                <h3 className="text-white font-bold mb-3 text-xs uppercase tracking-widest">Povezave</h3>
+                <h3 className="text-white font-bold mb-3 text-xs uppercase tracking-widest">{t.footer.links}</h3>
                 <ul className="space-y-1.5 text-xs text-slate-300">
-                  <li><a href="https://mavro-int.com/sl" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">O podjetju</a></li>
-                  <li><a href="https://mavro-int.shop/sl/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Izdelki</a></li>
-                  <li><a href="mailto:info@mavro-int.si" className="hover:text-white transition-colors">Kontakt</a></li>
+                  <li><a href="https://mavro-int.com/sl" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">{t.footer.about}</a></li>
+                  <li><a href="https://mavro-int.shop/sl/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">{t.footer.products}</a></li>
+                  <li><a href="mailto:info@mavro-int.si" className="hover:text-white transition-colors">{t.footer.contactLink}</a></li>
                   <li><a href="https://www.mavro-int.com/sl" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">www.mavro-int.com/sl</a></li>
                 </ul>
               </div>
 
               {/* Column 3: AI */}
               <div>
-                <h3 className="text-white font-bold mb-3 text-xs uppercase tracking-widest">Tehnologija AI</h3>
+                <h3 className="text-white font-bold mb-3 text-xs uppercase tracking-widest">{t.footer.aiTech}</h3>
                 <p className="text-slate-300 text-xs leading-relaxed">
-                  Razvito s Claude AI<br/>
+                  {t.footer.poweredBy}<br/>
                   <span className="text-slate-400">Powered by Anthropic</span>
                 </p>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-white/10 text-slate-300 text-[10px]">🤖 AI-Powered</span>
                   <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-white/10 text-slate-300 text-[10px]">✅ ISO 9001</span>
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-white/10 text-slate-300 text-[10px]">🌱 Trajnostno</span>
-                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-white/10 text-slate-300 text-[10px]">🌍 30+ let</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-white/10 text-slate-300 text-[10px]">🌱 {t.footer.sustained}</span>
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-white/10 text-slate-300 text-[10px]">🌍 {t.footer.experience}</span>
                 </div>
               </div>
             </div>
             <div className={`px-6 py-3 border-t ${dm ? "border-slate-700" : "border-slate-600"}`}>
               <p className="text-center text-[10px] text-slate-400">
-                © {new Date().getFullYear()} Mavro International · www.mavro-int.com
+                {t.footer.copyright(new Date().getFullYear())}
               </p>
             </div>
           </footer>
