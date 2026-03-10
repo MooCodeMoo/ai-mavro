@@ -511,9 +511,6 @@ export default function Home() {
               priority
               className="h-9 md:h-11 w-auto brightness-0 invert"
             />
-            <p className="text-[#f5a623] text-[10px] font-bold tracking-widest mt-1 uppercase">
-              {t.header.tagline}
-            </p>
             <p className="text-slate-400 text-[10px]">{t.header.subtitle}</p>
           </div>
           <div className="flex items-center gap-2">
