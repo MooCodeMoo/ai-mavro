@@ -520,7 +520,7 @@ export default function Home() {
             <select
               value={language}
               onChange={(e) => setLanguage(e.target.value as LanguageCode)}
-              className={`text-xs font-medium px-2 py-1.5 rounded-lg border cursor-pointer transition-colors ${dm ? "bg-slate-700 border-slate-600 text-white" : "bg-white/10 border-white/20 text-white"} focus:outline-none focus:ring-2 focus:ring-[#a855a7]`}
+              className={`text-xs font-medium px-2 py-1.5 rounded-lg border cursor-pointer transition-colors ${dm ? "bg-slate-700 border-slate-600 text-white" : "bg-white/10 border-white/20 text-white"} focus:outline-none focus:ring-2 focus:ring-slate-600`}
             >
               <option value="en">🇬🇧 EN</option>
               <option value="nl">🇳🇱 NL</option>
@@ -566,7 +566,7 @@ export default function Home() {
                       placeholder={t.customerInfo.customerNamePlaceholder}
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
-                      className={`w-full border rounded-lg px-3 py-3 md:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#a855a7] focus:border-transparent focus:scale-[1.02] transition-all duration-200 touch-manipulation ${dm ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-700"}`}
+                      className={`w-full border rounded-lg px-3 py-3 md:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent focus:scale-[1.02] transition-all duration-200 touch-manipulation ${dm ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-700"}`}
                     />
                   </div>
                   <div>
@@ -576,7 +576,7 @@ export default function Home() {
                       placeholder={t.customerInfo.projectLocationPlaceholder}
                       value={projectLocation}
                       onChange={(e) => setProjectLocation(e.target.value)}
-                      className={`w-full border rounded-lg px-3 py-3 md:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#a855a7] focus:border-transparent focus:scale-[1.02] transition-all duration-200 touch-manipulation ${dm ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-700"}`}
+                      className={`w-full border rounded-lg px-3 py-3 md:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent focus:scale-[1.02] transition-all duration-200 touch-manipulation ${dm ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-700"}`}
                     />
                   </div>
                   <div>
@@ -586,7 +586,7 @@ export default function Home() {
                       placeholder={t.customerInfo.contactInfoPlaceholder}
                       value={contactInfo}
                       onChange={(e) => setContactInfo(e.target.value)}
-                      className={`w-full border rounded-lg px-3 py-3 md:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#a855a7] focus:border-transparent focus:scale-[1.02] transition-all duration-200 touch-manipulation ${dm ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-700"}`}
+                      className={`w-full border rounded-lg px-3 py-3 md:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent focus:scale-[1.02] transition-all duration-200 touch-manipulation ${dm ? "bg-slate-700 border-slate-600 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-700"}`}
                     />
                   </div>
                 </div>
@@ -597,7 +597,7 @@ export default function Home() {
               {/* Step 1: Image Upload */}
               <section className="space-y-3">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-full bg-[#a855a7] flex items-center justify-center text-white text-sm font-bold">
+                  <div className="w-7 h-7 rounded-full bg-slate-600 flex items-center justify-center text-white text-sm font-bold">
                     1
                   </div>
                   <h2 className={`text-lg font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>{t.step1.title}</h2>
@@ -607,7 +607,7 @@ export default function Home() {
                   onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                   onDragLeave={() => setIsDragging(false)}
                   onDrop={(e) => { e.preventDefault(); setIsDragging(false); if (e.dataTransfer.files) addImages(e.dataTransfer.files); }}
-                  className={`transition-all duration-300 rounded-lg border-2 border-dashed p-3 ${isDragging ? `scale-[1.02] ${dm ? "border-[#a855a7] bg-purple-950" : "border-[#a855a7] bg-purple-50"}` : "border-transparent"}`}
+                  className={`transition-all duration-300 rounded-lg border-2 border-dashed p-3 ${isDragging ? `scale-[1.02] ${dm ? "border-slate-600 bg-slate-900" : "border-slate-600 bg-slate-50"}` : "border-transparent"}`}
                 >
                 <div className="flex flex-wrap gap-3">
                   <label
@@ -637,7 +637,7 @@ export default function Home() {
                       onClick={handleAnalyzeImages}
                       onMouseDown={addRipple}
                       disabled={analyzing}
-                      className="btn-ripple inline-flex items-center gap-2 px-4 py-3 md:py-2 min-h-[48px] touch-manipulation bg-[#a855a7] text-white text-sm font-medium rounded-lg hover:bg-[#9333a0] hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      className="btn-ripple inline-flex items-center gap-2 px-4 py-3 md:py-2 min-h-[48px] touch-manipulation bg-slate-600 text-white text-sm font-medium rounded-lg hover:bg-slate-700 hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                     >
                       {analyzing ? (
                         <>
@@ -698,7 +698,7 @@ export default function Home() {
                           key={i}
                           className={`relative rounded-lg overflow-hidden border-2 transition-all duration-200 ${
                             analyzingIndex === i
-                              ? "border-[#a855a7]"
+                              ? "border-slate-600"
                               : dm ? "border-slate-600" : "border-gray-200"
                           }`}
                         >
@@ -775,7 +775,7 @@ export default function Home() {
                                   <p className={`text-sm font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>{analysis.detectedContamination}</p>
                                   <div className="mt-2 flex items-center gap-2">
                                     <div className={`flex-1 h-1.5 rounded-full overflow-hidden ${dm ? "bg-slate-600" : "bg-gray-200"}`}>
-                                      <div className="h-full bg-[#a855a7] transition-all duration-1000" style={{ width: `${analysis.confidence * 100}%` }} />
+                                      <div className="h-full bg-slate-600 transition-all duration-1000" style={{ width: `${analysis.confidence * 100}%` }} />
                                     </div>
                                     <span className={`text-xs font-semibold ${dm ? "text-slate-300" : "text-gray-600"}`}>{Math.round(analysis.confidence * 100)}%</span>
                                   </div>
@@ -815,7 +815,7 @@ export default function Home() {
               {/* Step 2: Surface Type */}
               <section className="space-y-3">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-full bg-[#a855a7] flex items-center justify-center text-white text-sm font-bold">
+                  <div className="w-7 h-7 rounded-full bg-slate-600 flex items-center justify-center text-white text-sm font-bold">
                     2
                   </div>
                   <h2 className={`text-lg font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>{t.step2.title}</h2>
@@ -823,7 +823,7 @@ export default function Home() {
 
                 <div className="relative">
                   <select
-                    className={`w-full appearance-none border rounded-lg px-4 py-3.5 md:py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#a855a7] focus:border-transparent focus:scale-[1.02] transition-all duration-200 cursor-pointer touch-manipulation ${dm ? "bg-slate-700 border-slate-600 text-white hover:border-slate-500" : "bg-white border-gray-300 text-gray-700 hover:border-gray-400"}`}
+                    className={`w-full appearance-none border rounded-lg px-4 py-3.5 md:py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent focus:scale-[1.02] transition-all duration-200 cursor-pointer touch-manipulation ${dm ? "bg-slate-700 border-slate-600 text-white hover:border-slate-500" : "bg-white border-gray-300 text-gray-700 hover:border-gray-400"}`}
                     value={substrate ?? ""}
                     onChange={(e) => setSubstrate(e.target.value || null)}
                   >
@@ -843,7 +843,7 @@ export default function Home() {
               {/* Step 3: Contamination */}
               <section className="space-y-3">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-full bg-[#a855a7] flex items-center justify-center text-white text-sm font-bold">
+                  <div className="w-7 h-7 rounded-full bg-slate-600 flex items-center justify-center text-white text-sm font-bold">
                     3
                   </div>
                   <h2 className={`text-lg font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>{t.step3.title}</h2>
@@ -851,7 +851,7 @@ export default function Home() {
 
                 <div className="relative">
                   <select
-                    className={`w-full appearance-none border rounded-lg px-4 py-3.5 md:py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#a855a7] focus:border-transparent focus:scale-[1.02] transition-all duration-200 cursor-pointer touch-manipulation ${dm ? "bg-slate-700 border-slate-600 text-white hover:border-slate-500" : "bg-white border-gray-300 text-gray-700 hover:border-gray-400"}`}
+                    className={`w-full appearance-none border rounded-lg px-4 py-3.5 md:py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent focus:scale-[1.02] transition-all duration-200 cursor-pointer touch-manipulation ${dm ? "bg-slate-700 border-slate-600 text-white hover:border-slate-500" : "bg-white border-gray-300 text-gray-700 hover:border-gray-400"}`}
                     value={contamination ?? ""}
                     onChange={(e) => setContamination(e.target.value || null)}
                   >
@@ -871,7 +871,7 @@ export default function Home() {
               {/* Step 4: Recommendation */}
               <section className="space-y-3">
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-full bg-[#a855a7] flex items-center justify-center text-white text-sm font-bold">
+                  <div className="w-7 h-7 rounded-full bg-slate-600 flex items-center justify-center text-white text-sm font-bold">
                     4
                   </div>
                   <h2 className={`text-lg font-bold ${dm ? "text-slate-100" : "text-gray-800"}`}>{t.step4.title}</h2>
@@ -918,7 +918,7 @@ export default function Home() {
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${dm ? "bg-blue-900/20 text-blue-400" : "bg-blue-50 text-blue-700"}`}>
                           <span>⚡</span><span>{t.step4.badges.fast}</span>
                         </span>
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${dm ? "bg-purple-900/20 text-purple-400" : "bg-purple-50 text-purple-700"}`}>
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${dm ? "bg-slate-800 text-slate-300" : "bg-slate-100 text-slate-700"}`}>
                           <span>⭐</span><span>{t.step4.badges.professional}</span>
                         </span>
                       </div>
@@ -954,7 +954,7 @@ export default function Home() {
                             href={getProductUrl(catalogProduct)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-gradient-to-r from-[#a855a7] to-[#7c3aed] text-white text-sm font-semibold hover:from-[#9333a0] hover:to-[#6d28d9] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-slate-600 text-white text-sm font-semibold hover:bg-slate-700 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
                           >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.647 9M16 13v9m-4-9v9m5-9l2.647 9" />
@@ -1070,13 +1070,13 @@ export default function Home() {
                             placeholder={t.step4.emailPlaceholder}
                             value={recipientEmail}
                             onChange={(e) => setRecipientEmail(e.target.value)}
-                            className={`flex-1 border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#a855a7] focus:border-transparent transition-all duration-200 ${dm ? "bg-slate-800 border-slate-600 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-700"} ${recipientEmail && !isValidEmail(recipientEmail) ? "border-red-400 focus:ring-red-400" : ""}`}
+                            className={`flex-1 border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-slate-600 focus:border-transparent transition-all duration-200 ${dm ? "bg-slate-800 border-slate-600 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-700"} ${recipientEmail && !isValidEmail(recipientEmail) ? "border-red-400 focus:ring-red-400" : ""}`}
                           />
                           <button
                             onClick={sendViaEmail}
                             onMouseDown={addRipple}
                             disabled={sendingEmail || !isValidEmail(recipientEmail)}
-                            className="btn-ripple inline-flex items-center gap-2 px-4 py-2.5 min-h-[42px] touch-manipulation bg-[#a855a7] text-white text-sm font-medium rounded-lg hover:bg-[#9333a0] hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 whitespace-nowrap"
+                            className="btn-ripple inline-flex items-center gap-2 px-4 py-2.5 min-h-[42px] touch-manipulation bg-[#f5a623] text-white text-sm font-medium rounded-lg hover:bg-[#e09612] hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 whitespace-nowrap"
                           >
                             {sendingEmail ? (
                               <>

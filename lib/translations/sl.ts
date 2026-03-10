@@ -43,7 +43,7 @@ export const sl: TranslationType = {
     placeholder: "Izberite vrsto umazanije...",
   },
   step4: {
-    title: "Priporočilo za zdravljenje",
+    title: "Priporočilo za uporabo",
     emptyState: "Izberite vrsto površine in umazanije za priporočilo.",
     cardTitle: "Rešitev za površino",
     recommendedProduct: "Priporočen izdelek",

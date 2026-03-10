@@ -8,7 +8,7 @@
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-display: 'Playfair Display', Georgia, serif;
   --mavro-dark:   #3d4f5c;
-  --mavro-purple: #a855a7;
+  --mavro-grey: #475569;
   --mavro-yellow: #f5a623;
 }
 
@@ -50,7 +50,7 @@ html {
 }
 
 ::selection {
-  background-color: rgba(168, 85, 167, 0.2);
+  background-color: rgba(71, 85, 105, 0.2);
   color: inherit;
 }
 
@@ -63,16 +63,16 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #a855a7;
+  background: #475569;
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9333a0;
+  background: #334155;
 }
 
 *:focus-visible {
-  outline: 2px solid #a855a7;
+  outline: 2px solid #475569;
   outline-offset: 2px;
 }
 
