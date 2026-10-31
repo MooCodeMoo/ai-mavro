@@ -25,7 +25,8 @@ export const nl: TranslationType = {
     addMore: (n: number) => `Meer toevoegen (${n}/5)`,
     analyzeAI: "Analyseren met AI",
     analyzing: "Analyseren...",
-    imagesSelected: (n: number) => `${n} afbeelding${n !== 1 ? "en" : ""} geselecteerd`,
+    imagesSelected: (n: number) =>
+      `${n} afbeelding${n !== 1 ? "en" : ""} geselecteerd`,
     imagesMax: " (max)",
     clearAll: "Alles wissen",
     removeImage: "Afbeelding verwijderen",
@@ -44,7 +45,8 @@ export const nl: TranslationType = {
   },
   step4: {
     title: "Behandelingsadvies",
-    emptyState: "Selecteer beide oppervlakte- en vervuilingstypes om behandelingsaanbevelingen te bekijken.",
+    emptyState:
+      "Selecteer beide oppervlakte- en vervuilingstypes om behandelingsaanbevelingen te bekijken.",
     cardTitle: "Productoplossing",
     recommendedProduct: "Aanbevolen product",
     badges: {
@@ -76,28 +78,31 @@ export const nl: TranslationType = {
     viewAlt: "Bekijk →",
     pdfSuccess: "PDF succesvol gedownload",
     noRecommendationTitle: "Geen behandeling beschikbaar",
-    noRecommendationText: "We hebben nog geen specifieke aanbeveling voor deze combinatie. Neem contact op met Mavro technische ondersteuning voor deskundig advies.",
+    noRecommendationText:
+      "We hebben nog geen specifieke aanbeveling voor deze combinatie. Neem contact op met Mavro technische ondersteuning voor deskundig advies.",
   },
   surfaces: {
-    "Concrete": "Beton",
-    "Brick": "Baksteen",
+    "Steel / iron": "Staal / ijzer",
+    Concrete: "Beton",
+    Brick: "Baksteen",
     "Render / mineral plaster": "Pleisterwerk / minerale pleister",
     "Natural stone (soft)": "Natuursteen (zacht)",
     "Natural stone (hard)": "Natuursteen (hard)",
     "Roof tiles": "Dakpannen",
     "Paving stones": "Bestrating",
-    "Aluminium": "Aluminium",
-    "Wood": "Hout",
+    Aluminium: "Aluminium",
+    Wood: "Hout",
   } as Record<string, string>,
   contaminations: {
+    "Weathered wood": "Vergrijsd hout",
     "Green deposits (algae/moss/lichen)": "Groene aanslag (algen/mos/korstmos)",
     "Black mould": "Zwarte schimmel",
     "General dirt / traffic film": "Algemeen vuil / verkeersfilm",
     "Efflorescence / cement veil": "Uitbloei / cementsluier",
     "Rust / oxide": "Roest / oxide",
     "Oil / grease": "Olie / vet",
-    "Graffiti": "Graffiti",
-    "Paint": "Verf",
+    Graffiti: "Graffiti",
+    Paint: "Verf",
   } as Record<string, string>,
   footer: {
     contact: "Contact",
@@ -109,6 +114,7 @@ export const nl: TranslationType = {
     poweredBy: "Ontwikkeld met Claude AI",
     sustained: "Duurzaam",
     experience: "30+ jaar",
-    copyright: (year: number) => `© ${year} Mavro International · www.mavro-int.com`,
+    copyright: (year: number) =>
+      `© ${year} Mavro International · www.mavro-int.com`,
   },
 };

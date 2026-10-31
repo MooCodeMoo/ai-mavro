@@ -42,7 +42,8 @@ export const en = {
   },
   step4: {
     title: "Treatment Recommendation",
-    emptyState: "Select both surface type and contamination type to view treatment recommendations.",
+    emptyState:
+      "Select both surface type and contamination type to view treatment recommendations.",
     cardTitle: "Product Solution",
     recommendedProduct: "Recommended Product",
     badges: {
@@ -74,28 +75,31 @@ export const en = {
     viewAlt: "View →",
     pdfSuccess: "PDF downloaded successfully",
     noRecommendationTitle: "No Treatment Available",
-    noRecommendationText: "We don't have a specific recommendation for this combination yet. Please contact Mavro technical support for expert guidance.",
+    noRecommendationText:
+      "We don't have a specific recommendation for this combination yet. Please contact Mavro technical support for expert guidance.",
   },
   surfaces: {
-    "Concrete": "Concrete",
-    "Brick": "Brick",
+    "Steel / iron": "Steel / iron",
+    Concrete: "Concrete",
+    Brick: "Brick",
     "Render / mineral plaster": "Render / mineral plaster",
     "Natural stone (soft)": "Natural stone (soft)",
     "Natural stone (hard)": "Natural stone (hard)",
     "Roof tiles": "Roof tiles",
     "Paving stones": "Paving stones",
-    "Aluminium": "Aluminium",
-    "Wood": "Wood",
+    Aluminium: "Aluminium",
+    Wood: "Wood",
   } as Record<string, string>,
   contaminations: {
+    "Weathered wood": "Weathered wood",
     "Green deposits (algae/moss/lichen)": "Green deposits (algae/moss/lichen)",
     "Black mould": "Black mould",
     "General dirt / traffic film": "General dirt / traffic film",
     "Efflorescence / cement veil": "Efflorescence / cement veil",
     "Rust / oxide": "Rust / oxide",
     "Oil / grease": "Oil / grease",
-    "Graffiti": "Graffiti",
-    "Paint": "Paint",
+    Graffiti: "Graffiti",
+    Paint: "Paint",
   } as Record<string, string>,
   footer: {
     contact: "Contact",
@@ -107,7 +111,8 @@ export const en = {
     poweredBy: "Developed with Claude AI",
     sustained: "Sustainable",
     experience: "30+ yrs",
-    copyright: (year: number) => `© ${year} Mavro International · www.mavro-int.com`,
+    copyright: (year: number) =>
+      `© ${year} Mavro International · www.mavro-int.com`,
   },
 };
 

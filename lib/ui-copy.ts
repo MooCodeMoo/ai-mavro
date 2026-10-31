@@ -1,0 +1,187 @@
+import type { Language, Localized } from "./domain";
+const messages = {
+  area: ["Površina (m²)", "Površina (m²)", "Area (m²)", "Oppervlak (m²)"],
+  water: [
+    "Deli vode na 1 del izdelka",
+    "Dijelovi vode na 1 dio proizvoda",
+    "Parts water per 1 part product",
+    "Delen water per 1 deel product",
+  ],
+  acid: [
+    "Podlaga je potrjeno odporna na kisline.",
+    "Podloga je potvrđeno otporna na kiseline.",
+    "The substrate is confirmed acid resistant.",
+    "De ondergrond is bevestigd zuurbestendig.",
+  ],
+  uncoated: [
+    "Kovina je gola, brez barve, eloksacije ali prevleke.",
+    "Metal je gol, bez boje, eloksacije ili premaza.",
+    "The metal is bare, without paint, anodising or coating.",
+    "Het metaal is kaal, zonder verf, anodisatie of coating.",
+  ],
+  confirm: [
+    "Preveril sem izbrano podlago in umazanijo.",
+    "Provjerio sam odabranu podlogu i zaprljanost.",
+    "I have checked the selected surface and contamination.",
+    "Ik heb de gekozen ondergrond en vervuiling gecontroleerd.",
+  ],
+  consent: [
+    "Dovoljujem shranjevanje podatkov in fotografij za obravnavo pri Mavru.",
+    "Dopuštam spremanje podataka i fotografija za obradu u Mavru.",
+    "I permit Mavro to store these details and photos to handle this case.",
+    "Ik geef Mavro toestemming om deze gegevens en foto’s op te slaan voor behandeling.",
+  ],
+  privacy: [
+    "Fotografije za AI pošlješ ponudniku Anthropic. Ne nalagaj oseb ali občutljivih podatkov.",
+    "Fotografije za AI šalješ pružatelju Anthropic. Ne učitavaj osobe ili osjetljive podatke.",
+    "AI photos are sent to Anthropic. Avoid people and sensitive information.",
+    "AI-foto’s worden naar Anthropic gestuurd. Vermijd personen en gevoelige informatie.",
+  ],
+  estimate: [
+    "Okvirna poraba nerazredčenega izdelka",
+    "Okvirna potrošnja nerazrijeđenog proizvoda",
+    "Indicative undiluted product requirement",
+    "Indicatief verbruik onverdund product",
+  ],
+  noEstimate: [
+    "Porabo potrdi s poskusnim nanosom; podatek za izbrano redčenje ni potrjen.",
+    "Potrošnju potvrdi probnim nanošenjem; podatak za odabrano razrjeđivanje nije potvrđen.",
+    "Confirm consumption with a test application; coverage for this dilution is unverified.",
+    "Bevestig verbruik met een proefvlak; dekking bij deze verdunning is niet bevestigd.",
+  ],
+  packs: [
+    "Možnosti pakiranja za zgornjo oceno; preveri ponudbo.",
+    "Mogućnosti pakiranja za gornju procjenu; provjeri ponudu.",
+    "Pack options for the upper estimate; confirm availability.",
+    "Verpakkingsopties voor de bovengrens; bevestig beschikbaarheid.",
+  ],
+  price: [
+    "Ceno in zalogo preveri v trgovini ali pri Mavru.",
+    "Cijenu i zalihu provjeri u trgovini ili kod Mavra.",
+    "Confirm price and availability in the shop or with Mavro.",
+    "Controleer prijs en voorraad in de winkel of bij Mavro.",
+  ],
+  source: ["Mavrov vir", "Mavrov izvor", "Mavro source", "Mavro-bron"],
+  checked: [
+    "Vir preverjen",
+    "Izvor provjeren",
+    "Source checked",
+    "Bron gecontroleerd",
+  ],
+  protection: [
+    "Možna zaščita po čiščenju — primernost naj potrdi Mavro",
+    "Moguća zaštita nakon čišćenja — prikladnost potvrđuje Mavro",
+    "Possible protection after cleaning — confirm suitability with Mavro",
+    "Mogelijke bescherming na reinigen — bevestig geschiktheid met Mavro",
+  ],
+  review: [
+    "Osnutek: pred izvedbo zahtevaj strokovni pregled. Ocena AI ni zagotovilo pravilne diagnoze.",
+    "Nacrt: prije primjene zatraži stručni pregled. AI procjena nije jamstvo točne dijagnoze.",
+    "Draft: request technical review before treatment. AI confidence is not a guarantee of a correct diagnosis.",
+    "Concept: vraag technisch advies voor toepassing. AI-zekerheid garandeert geen juiste diagnose.",
+  ],
+  request: [
+    "Shrani za strokovni pregled / povpraševanje",
+    "Spremi za stručni pregled / upit",
+    "Save for technical review / enquiry",
+    "Opslaan voor technisch advies / aanvraag",
+  ],
+  loading: [
+    "Pridobivam priporočilo…",
+    "Dohvaćam preporuku…",
+    "Loading recommendation…",
+    "Advies ophalen…",
+  ],
+  saved: [
+    "Primer je shranjen. ID:",
+    "Slučaj je spremljen. ID:",
+    "Case saved. ID:",
+    "Dossier opgeslagen. ID:",
+  ],
+  pending: [
+    "Čaka na pregled",
+    "Čeka pregled",
+    "Pending review",
+    "Wacht op beoordeling",
+  ],
+  approved: ["Pregledano", "Pregledano", "Reviewed", "Beoordeeld"],
+  rejected: ["Zavrnjeno", "Odbijeno", "Rejected", "Afgewezen"],
+  email: [
+    "E-pošta prejemnika",
+    "E-pošta primatelja",
+    "Recipient email",
+    "E-mail ontvanger",
+  ],
+  choose: [
+    "Izberi rezultat te fotografije",
+    "Odaberi rezultat ove fotografije",
+    "Use this photo’s result",
+    "Gebruik dit fotoresultaat",
+  ],
+  history: [
+    "Moji shranjeni primeri na tej napravi",
+    "Moji spremljeni slučajevi na ovom uređaju",
+    "My saved cases on this device",
+    "Mijn dossiers op dit apparaat",
+  ],
+  restored: [
+    "Odpri shranjeni primer",
+    "Otvori spremljeni slučaj",
+    "Open saved case",
+    "Open opgeslagen dossier",
+  ],
+  failed: [
+    "Zahteva ni uspela. Poskusi ponovno.",
+    "Zahtjev nije uspio. Pokušaj ponovno.",
+    "Request failed. Please try again.",
+    "Verzoek mislukt. Probeer opnieuw.",
+  ],
+  changes: [
+    "Podatki so spremenjeni; za nov PDF ali e-pošto ponovno shrani primer.",
+    "Podaci su promijenjeni; za novi PDF ili e-poštu ponovno spremi slučaj.",
+    "Details changed; save the case again before downloading or emailing.",
+    "Gegevens gewijzigd; sla opnieuw op voor downloaden of mailen.",
+  ],
+  report: [
+    "Načrt obdelave površine",
+    "Plan obrade površine",
+    "Surface treatment plan",
+    "Behandelplan voor oppervlakken",
+  ],
+  status: [
+    "Status pregleda",
+    "Status pregleda",
+    "Review status",
+    "Beoordelingsstatus",
+  ],
+  emailIntro: [
+    "V prilogi je shranjeni načrt obdelave površine.",
+    "U privitku je spremljeni plan obrade površine.",
+    "The saved surface treatment plan is attached.",
+    "Het opgeslagen behandelplan is bijgevoegd.",
+  ],
+  unavailable: [
+    "Za to kombinacijo je potreben strokovni pregled.",
+    "Za ovu kombinaciju potreban je stručni pregled.",
+    "This combination requires technical review.",
+    "Voor deze combinatie is technisch advies nodig.",
+  ],
+  uncertainty: [
+    "Pri nizki oceni ali nasprotujočih si fotografijah potrdi izbiro ročno.",
+    "Kod niske procjene ili proturječnih fotografija potvrdi izbor ručno.",
+    "For low confidence or conflicting photos, confirm the selection manually.",
+    "Bevestig de keuze handmatig bij lage zekerheid of tegenstrijdige foto’s.",
+  ],
+} as const;
+export type CopyKey = keyof typeof messages;
+export function copy(language: Language, key: CopyKey): string {
+  return messages[key][(["sl", "hr", "en", "nl"] as const).indexOf(language)];
+}
+export function localized(
+  sl: string,
+  hr: string,
+  en: string,
+  nl: string,
+): Localized<string> {
+  return { sl, hr, en, nl };
+}

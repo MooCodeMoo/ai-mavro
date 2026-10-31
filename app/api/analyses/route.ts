@@ -1,36 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAnalyses, getAnalysesCount, getStatistics, exportAnalysesJSON } from "@/lib/database";
-
+import { getDb, listCases } from "@/lib/database";
+import { requireAdmin } from "@/lib/security";
+import { apiError, HttpError } from "@/lib/http";
 export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const action = searchParams.get('action');
-    
-    if (action === 'export') {
-      const data = exportAnalysesJSON();
-      return NextResponse.json({ analyses: data });
+    requireAdmin(req);
+    if (req.nextUrl.searchParams.get("legacy") === "1") {
+      const db = await getDb();
+      const tables = await db.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('analyses','rules')",
+      );
+      const legacy: Record<string, unknown> = {};
+      for (const row of tables.rows) {
+        const table = String(row.name);
+        legacy[table] = (await db.execute(`SELECT * FROM ${table}`)).rows;
+      }
+      return NextResponse.json(legacy, {
+        headers: {
+          "Cache-Control": "no-store",
+          "Content-Disposition": 'attachment; filename="mavro-legacy.json"',
+        },
+      });
     }
-
-    if (action === 'stats') {
-      const stats = getStatistics();
-      return NextResponse.json({ statistics: stats });
-    }
-
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const offset = parseInt(searchParams.get('offset') || '0');
-
-    const analyses = getAnalyses(limit, offset);
-    const total = getAnalysesCount();
-
-    return NextResponse.json({ 
-      analyses,
-      total,
-      limit,
-      offset,
-      hasMore: offset + limit < total
-    });
-  } catch (error) {
-    console.error("Error fetching analyses:", error);
-    return NextResponse.json({ error: "Failed to fetch analyses" }, { status: 500 });
+    const limit = Number(req.nextUrl.searchParams.get("limit") || 25),
+      offset = Number(req.nextUrl.searchParams.get("offset") || 0);
+    if (
+      !Number.isInteger(limit) ||
+      limit < 1 ||
+      limit > 100 ||
+      !Number.isInteger(offset) ||
+      offset < 0
+    )
+      throw new HttpError(400, "Invalid page");
+    const page = await listCases(limit, offset);
+    const db = await getDb();
+    const pending = Number(
+      (
+        await db.execute(
+          "SELECT count(*) AS total FROM treatment_cases WHERE review='pending'",
+        )
+      ).rows[0].total,
+    );
+    const legacy = await db.execute(
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='analyses'",
+    );
+    return NextResponse.json(
+      { ...page, pending, legacyAvailable: legacy.rows.length > 0 },
+      { headers: { "Cache-Control": "no-store" } },
+    );
+  } catch (e) {
+    return apiError(e);
   }
 }
