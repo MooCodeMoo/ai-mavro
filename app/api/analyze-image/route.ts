@@ -8,7 +8,10 @@ import { apiError, HttpError, readJSON } from "@/lib/http";
 export async function POST(req: NextRequest) {
   try {
     await mutationGuard(req, "ai", 20);
-    const key = process.env.ANTHROPIC_API_KEY;
+    const key =
+      (process.env.VERCEL_ENV === "preview"
+        ? process.env.ANTHROPIC_API_KEY_PREVIEW
+        : undefined) || process.env.ANTHROPIC_API_KEY;
     const gateway = process.env.AI_GATEWAY_ENABLED === "1";
     const gatewayToken = gateway
       ? process.env.AI_GATEWAY_API_KEY || (await getVercelOidcToken())
