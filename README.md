@@ -12,7 +12,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-The default local database is the existing `mavro-ai.db`. The previous `rules` and `analyses` tables are retained without modification. New versioned tables store reviewed-source rules and complete cases. The administration provides a private export of legacy tables. **Legacy import scripts write only to those old tables; do not use them to publish new treatment rules.**
+The default local database is the existing `mavro-ai.db`. The previous `rules` and `analyses` tables are retained without modification. New versioned tables store reviewed-source rules and complete cases. The administration provides a private export of legacy tables. **Legacy import scripts are retained for reference only; they require their own separately installed `better-sqlite3` dependency and write only to old tables. Do not use them to publish new treatment rules. The running app no longer installs or uses `better-sqlite3`.**
 
 ## Configure the existing deployment
 

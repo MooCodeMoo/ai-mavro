@@ -30,3 +30,7 @@ Remote libSQL connectivity, actual SMTP credentials/delivery and live AI accurac
 - PDFKit replaces Python script generation. PDF/email content is loaded from a saved case; arbitrary client attachments and product instructions are ignored.
 - Remote libSQL support for serverless deployments and preservation/export of legacy SQLite tables.
 - Page-list queries are batched rather than issuing one query per case and photograph list.
+
+## Vercel build repair
+
+The failed preview build used Node 26.13.0 because `engines.node` was `>=22`. The legacy `better-sqlite3` addon failed to compile against that runtime. The app now pins Node `24.x`, matching the existing Vercel project and the validated local/CI runtime. Its unused `better-sqlite3` runtime dependency and types were removed; active persistence uses `@libsql/client`. No stored database data was deleted.
