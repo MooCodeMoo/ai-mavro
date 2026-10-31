@@ -80,9 +80,10 @@ export function AdvisorResult({
               <h3>{t.dilution}</h3>
               <p className={s.dilution}>{treatment.dilution}</p>
               {product.allowedWaterParts.length > 1 && (
-                <label className={s.waterControl}>
-                  {copy(language, "water")}
+                <div className={s.waterControl}>
+                  <label htmlFor="water-parts">{copy(language, "water")}</label>
                   <select
+                    id="water-parts"
                     disabled={busy}
                     value={input.waterParts}
                     onChange={(e) => onWater(Number(e.target.value))}
@@ -93,7 +94,7 @@ export function AdvisorResult({
                       </option>
                     ))}
                   </select>
-                </label>
+                </div>
               )}
             </section>
             <section>

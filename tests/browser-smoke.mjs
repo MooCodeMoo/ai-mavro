@@ -45,7 +45,7 @@ server.stdout.on("data", (v) => {
 server.stderr.on("data", (v) => {
   serverLog += v;
 });
-let browser;
+let browser, page;
 try {
   let ready = false;
   for (let i = 0; i < 100; i++) {
@@ -68,7 +68,7 @@ try {
     viewport: { width: 1440, height: 1000 },
     acceptDownloads: true,
   });
-  const page = await context.newPage();
+  page = await context.newPage();
   const errors = [];
   page.setDefaultTimeout(12000);
   page.on("pageerror", (error) => errors.push(error.message));
@@ -314,6 +314,11 @@ try {
   console.log(
     "Browser checks passed: mocked AI proposal and manual confirmation, wood/paint correction, editable quantity without losing focus, dilution estimate guard, real case/photo/PDF, all four languages, immutable case restore, private administration and review.",
   );
+} catch (error) {
+  console.error("Browser check failed:", error.message);
+  if (page)
+    console.error((await page.locator("body").innerText()).slice(0, 7000));
+  throw error;
 } finally {
   if (browser) await browser.close();
   server.kill("SIGTERM");
