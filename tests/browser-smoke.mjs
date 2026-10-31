@@ -195,9 +195,16 @@ try {
   await page
     .getByRole("button", { name: "Potrdi pregled", exact: true })
     .click();
-  await page
-    .getByRole("link", { name: "Osnutek za Asano", exact: true })
-    .waitFor();
+  assert.equal(
+    await page
+      .getByRole("link", { name: "Osnutek za Asano", exact: true })
+      .count(),
+    0,
+  );
+  assert.equal(
+    (await context.request.get(origin + "/api/cases/not-a-case/lead")).status(),
+    404,
+  );
   if (output)
     await page.screenshot({
       path: path.join(output, "admin.png"),

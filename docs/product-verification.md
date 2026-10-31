@@ -26,7 +26,7 @@ Only official Mavro product pages and linked technical sheets were used. The app
 
 ## Pending deployment checks
 
-Remote libSQL credentials, the production host, SMTP delivery and the real Anthropic account must be verified in that deployment environment. No live email, Asana task or customer submission is part of the code checks.
+Remote libSQL credentials, the production host, SMTP delivery and the real Anthropic account must be verified in that deployment environment. No live email or customer submission is part of the code checks.
 
 ## AI model maintenance
 

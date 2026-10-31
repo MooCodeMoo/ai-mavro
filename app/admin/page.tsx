@@ -606,9 +606,6 @@ export default function Admin() {
                 <a className="button" href={`/api/cases/${selected.id}/pdf`}>
                   PDF
                 </a>
-                <a className="button" href={`/api/cases/${selected.id}/lead`}>
-                  Osnutek za Asano
-                </a>
                 <button
                   className="danger"
                   disabled={busy}
@@ -628,10 +625,6 @@ export default function Admin() {
                   Izbriši
                 </button>
               </div>
-              <p className="small muted">
-                Osnutek za Asano samo prenese besedilo. Pred ustvarjanjem leada
-                ostane pregled obeh oseb.
-              </p>
             </section>
           </div>
         )}

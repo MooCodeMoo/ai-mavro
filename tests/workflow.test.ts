@@ -15,7 +15,6 @@ import { POST as diagnose } from "../app/api/diagnose/route";
 import { GET as fetchCase } from "../app/api/cases/[id]/route";
 import { GET as photoRoute } from "../app/api/cases/[id]/photos/[photoId]/route";
 import { PUT as review } from "../app/api/cases/[id]/review/route";
-import { GET as lead } from "../app/api/cases/[id]/lead/route";
 import { POST as pdf } from "../app/api/generate-pdf/route";
 import { POST as email } from "../app/api/send-pdf-email/route";
 import { POST as analyze } from "../app/api/analyze-image/route";
@@ -214,7 +213,7 @@ test("private workflow, shared rules, preserved snapshots and PDF", async (t) =>
       assert.ok(bytes.length > 10_000);
     },
   );
-  await t.test("review and lead preparation stay private", async () => {
+  await t.test("case review stays private", async () => {
     const params = Promise.resolve({ id: item.id });
     assert.equal(
       (
@@ -242,13 +241,6 @@ test("private workflow, shared rules, preserved snapshots and PDF", async (t) =>
       ).status,
       200,
     );
-    assert.equal(
-      (await lead(request("/lead", undefined, ownerCookie), { params })).status,
-      401,
-    );
-    const draft = await lead(request("/lead", undefined, cookie), { params });
-    assert.equal(draft.status, 200);
-    assert.match(await draft.text(), /No task has been created/);
   });
   await t.test(
     "AI has no random fallback and email fails clearly without SMTP",

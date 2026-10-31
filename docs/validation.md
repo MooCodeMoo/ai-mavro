@@ -16,7 +16,7 @@ The full dependency audit still reports moderate minimatch-related findings in t
 
 Browser checks use synthetic data and an isolated temporary SQLite database. They cover corrected wood/paint recommendation, live quantity estimate, photograph upload, complete case save, private PDF download, Croatian instructions, persisted language choice, unsaved-change download lock, no horizontal overflow at 390px, unauthorised admin rejection, admin login and case review.
 
-API integration tests exercise actual database writes and actual PDF generation. Anthropic success and email success use mocked network/transport boundaries; missing-configuration paths are tested separately. No live external email, Asana task, AI charge or customer submission was made.
+API integration tests exercise actual database writes and actual PDF generation. Anthropic success and email success use mocked network/transport boundaries; missing-configuration paths are tested separately. No live external email, AI charge or customer submission was made.
 
 Remote libSQL connectivity, actual SMTP credentials/delivery and live AI accuracy have not been validated in the production environment. A preview deployment must use its own database and secrets. The production branch has not been activated as part of the local checks.
 

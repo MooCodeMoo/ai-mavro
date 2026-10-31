@@ -50,7 +50,7 @@ The placeholder is not a deployed URL. Cross-site browsers can block cookies in 
 3. Add area and choose permitted dilution. Acidic cement cleaning requires explicit acid-resistance confirmation. Acidic metal cleaning requires a bare-metal confirmation. Unsupported combinations go to technical review.
 4. Confirm the selection and storage permission. Save the complete case, including private photos and an immutable snapshot of the treatment and its source/revision. All cases start as pending review.
 5. Download or email that saved snapshot. Unsaved changes require saving a new case. Owners access their cases using signed HttpOnly cookies; the local history contains only opaque IDs, not customer details. Owner access expires after seven days. Administrators retain access.
-6. In administration, review cases, inspect photographs, edit source-backed rules in all four languages, and prepare a plain-text lead draft for `Leads Mavro Slovenia`. This does not create an Asana task or contact anyone; the existing four-eyes review remains intact.
+6. In administration, review cases, inspect photographs, edit source-backed rules in all four languages, and manage technical review.
 
 ## Product and calculator behavior
 
