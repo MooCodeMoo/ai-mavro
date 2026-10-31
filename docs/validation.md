@@ -4,7 +4,7 @@ Validated on the upgraded existing Next.js application (Next.js 16.4.3 / Node.js
 
 | Check | Result |
 | --- | --- |
-| Domain and API tests | 23 passed, 0 failed |
+| Domain and API tests | 26 passed, 0 failed |
 | ESLint | Passed, no warnings |
 | TypeScript | Passed |
 | Production build | Passed |
@@ -16,7 +16,7 @@ The full dependency audit still reports moderate minimatch-related findings in t
 
 Browser checks use synthetic data and an isolated temporary SQLite database. They cover corrected wood/paint recommendation, live quantity estimate, photograph upload, complete case save, private PDF download, Croatian instructions, persisted language choice, unsaved-change download lock, no horizontal overflow at 390px, unauthorised admin rejection, admin login and case review.
 
-API integration tests exercise actual database writes and actual PDF generation. Anthropic success and email success use mocked network/transport boundaries; missing-configuration paths are tested separately. No live external email, AI charge or customer submission was made.
+API integration tests exercise actual database writes and actual PDF generation. Anthropic success and email success use mocked network/transport boundaries; missing-configuration paths are tested separately. No live external email or customer submission was made during these local checks. The protected-preview checks below are separate.
 
 Remote libSQL connectivity, actual SMTP credentials/delivery and live AI accuracy have not been validated in the production environment. A preview deployment must use its own database and secrets. The production branch has not been activated as part of the local checks.
 
@@ -34,3 +34,22 @@ Remote libSQL connectivity, actual SMTP credentials/delivery and live AI accurac
 ## Vercel build repair
 
 The failed preview build used Node 26.13.0 because `engines.node` was `>=22`. The legacy `better-sqlite3` addon failed to compile against that runtime. The app now pins Node `24.x`, matching the existing Vercel project and the validated local/CI runtime. Its unused `better-sqlite3` runtime dependency and types were removed; active persistence uses `@libsql/client`. No stored database data was deleted.
+
+## Protected internal preview
+
+Commit `ba98dade2e2afba230d455a04c3caf1ead05130c` deployed successfully to
+Vercel preview (Node 24). Preview-only branch environment variables configure
+private Blob storage, signed sessions and AI Gateway. All seven configured
+variables are restricted to this feature branch; production is unchanged.
+
+- 26 automated tests pass, including concurrent object-store updates and
+  rejection of the internal login flag on production/other branches.
+- Lint, TypeScript and production build pass.
+- Local desktop/mobile Chromium workflow passes, including photo/save/PDF,
+  administration and review.
+- Hosted adviser and session endpoints return 200. The session endpoint
+  advertises the internal login only on the selected preview.
+- A synthetic photo and complete case were persisted on the hosted private
+  backend (200), with the expected `facadeclean-hc` recommendation.
+- Remote browser access from the verification environment was intermittent;
+  do not interpret local browser success as hosted end-to-end confirmation.
