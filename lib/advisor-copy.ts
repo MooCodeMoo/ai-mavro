@@ -67,7 +67,7 @@ const sl = {
 type Copy = {
   [K in keyof typeof sl]: (typeof sl)[K] extends string[] ? string[] : string;
 };
-export const previewCopy: Record<Language, Copy> = {
+export const advisorCopy: Record<Language, Copy> = {
   sl,
   hr: {
     language: "Jezik",
@@ -265,7 +265,7 @@ export const previewCopy: Record<Language, Copy> = {
     readError: "De foto kon niet worden geopend.",
   },
 };
-export const previewLanguageNames: Record<Language, string> = {
+export const advisorLanguageNames: Record<Language, string> = {
   sl: "Slovenščina",
   hr: "Hrvatski",
   en: "English",

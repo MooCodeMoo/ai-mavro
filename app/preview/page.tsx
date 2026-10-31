@@ -11,13 +11,13 @@ import {
   LANGUAGES,
   type Language,
 } from "@/lib/domain";
-import { previewCopy, previewLanguageNames } from "./copy";
+import { advisorCopy, advisorLanguageNames } from "@/lib/advisor-copy";
 import { translations } from "@/lib/translations";
-import s from "./preview.module.css";
+import s from "@/components/advisor.module.css";
 
 export default function DesignPreview() {
   const [language, setLanguage] = useState<Language>("sl");
-  const t = previewCopy[language];
+  const t = advisorCopy[language];
   const [step, setStep] = useState(0);
   const [photo, setPhoto] = useState("");
   const [surface, setSurface] = useState("");
@@ -127,7 +127,7 @@ export default function DesignPreview() {
             >
               {LANGUAGES.map((code) => (
                 <option key={code} value={code}>
-                  {previewLanguageNames[code]}
+                  {advisorLanguageNames[code]}
                 </option>
               ))}
             </select>

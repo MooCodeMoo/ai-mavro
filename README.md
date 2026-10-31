@@ -101,3 +101,23 @@ model identifier is `anthropic/claude-sonnet-4.6`. Account credits or verificati
 may be required; unavailable AI returns an explicit error and manual selection
 remains usable. Without this flag, the existing direct Anthropic configuration
 is used. SMTP is optional and is not configured for this internal trial.
+
+## Implemented adviser interface
+
+The root `/` uses the approved minimal photo → confirmation → recommendation
+interface. The separate `/preview` route remains an explicitly labelled design
+sandbox. Shared presentation styles and translated interface copy live in
+`components/advisor.module.css` and `lib/advisor-copy.ts`.
+
+`components/use-advisor.ts` owns the live API workflow; recommendations come from
+`/api/recommend`, so administration edits apply to new recommendations. Saved
+cases retain their treatment snapshot. Changes to language, quantities or case
+details require another save before PDF/email actions are enabled. Language
+preferences and case IDs remain local to the device; photographs are not put in
+local storage. Conflicting AI photo results never auto-select a diagnosis.
+
+`npm run test:browser` exercises the full root workflow against an isolated
+SQLite database and actual PDF generation. Only the external AI response is
+mocked in that browser test. CI installs Chromium and runs this check after the
+production build. Actual provider billing/access and SMTP delivery are separate
+hosted configuration checks.

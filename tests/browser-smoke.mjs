@@ -31,6 +31,9 @@ const server = spawn(
       TURSO_AUTH_TOKEN: "",
       ANTHROPIC_API_KEY: "",
       EMAIL_HOST: "",
+      MAVRO_STORAGE: "",
+      AI_GATEWAY_ENABLED: "",
+      INTERNAL_TEST_MODE: "",
     },
     stdio: ["ignore", "pipe", "pipe"],
   },
@@ -70,61 +73,127 @@ try {
   page.setDefaultTimeout(12000);
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(origin);
+  const image = await sharp({
+    create: { width: 120, height: 80, channels: 3, background: "#90a2ad" },
+  })
+    .png()
+    .toBuffer();
+  await page.locator("input[type=file]").first().setInputFiles({
+    name: "surface.png",
+    mimeType: "image/png",
+    buffer: image,
+  });
+  let aiCalls = 0;
+  await page.route("**/api/analyze-image", async (route) => {
+    const body = route.request().postDataJSON();
+    assert.equal(body.language, "sl");
+    assert.ok(body.image.startsWith("data:image/jpeg;base64,"));
+    aiCalls++;
+    await route.fulfill({
+      json: {
+        analysis: {
+          surfaceSuggestion: "Concrete",
+          detectedContamination: "Green deposits (algae/moss/lichen)",
+          confidence: 0.93,
+          notes: "Synthetic UI test.",
+        },
+      },
+    });
+  });
+  await page
+    .getByRole("button", { name: "Analiziraj z AI", exact: true })
+    .click();
+  await page
+    .getByRole("button", {
+      name: "Izberi rezultat te fotografije",
+      exact: false,
+    })
+    .click();
+  assert.equal(aiCalls, 1);
+  assert.equal(await page.locator("#substrate").inputValue(), "Concrete");
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Pokaži priporočilo", exact: false })
+      .isDisabled(),
+    true,
+  );
   await page.locator("#substrate").selectOption("Wood");
   await page.locator("#contamination").selectOption("Paint");
   await page
+    .getByLabel("Preveril sem izbrano podlago in umazanijo.", { exact: true })
+    .check();
+  await page
+    .getByRole("button", { name: "Pokaži priporočilo", exact: false })
+    .click();
+  await page
     .getByRole("heading", { name: "Strip-Off Plus", exact: true })
     .waitFor();
+  await page.locator("#result-area").fill("100");
+  await page.getByText("25–100 kg", { exact: true }).waitFor();
+  await page.getByRole("button", { name: "Spremeni", exact: true }).click();
   await page.locator("#substrate").selectOption("Concrete");
   await page
     .locator("#contamination")
     .selectOption("Green deposits (algae/moss/lichen)");
   await page
+    .getByLabel("Preveril sem izbrano podlago in umazanijo.", { exact: true })
+    .check();
+  await page
+    .getByRole("button", { name: "Pokaži priporočilo", exact: false })
+    .click();
+  await page
     .getByRole("heading", { name: "FacadeClean HC", exact: true })
     .waitFor();
-  await page.getByLabel("Površina (m²)", { exact: true }).fill("100");
-  await page.getByText("6.67–20 L", { exact: true }).waitFor();
-
-  const labels = page.locator(".field-grid input");
-  await labels.nth(0).fill("Črt Šušterič — test");
-  await labels.nth(1).fill("Ljubljana");
-  await labels.nth(2).fill("test@example.invalid");
+  await page.getByText("6,67–20 L", { exact: true }).waitFor();
+  await page.locator("#result-area").fill("");
+  await page.locator("#result-area").pressSequentially("125", { delay: 40 });
+  assert.equal(await page.locator("#result-area").inputValue(), "125");
+  await page.getByText("8,34–25 L", { exact: true }).waitFor();
   await page
-    .locator("input[type=file]")
-    .first()
-    .setInputFiles({
-      name: "surface.png",
-      mimeType: "image/png",
-      buffer: await sharp({
-        create: { width: 120, height: 80, channels: 3, background: "#90a2ad" },
-      })
-        .png()
-        .toBuffer(),
-    });
-  await page.locator(".photo-tile").first().waitFor();
-  await page.getByLabel("Preveril sem izbrano podlago in umazanijo.").check();
+    .getByLabel("Deli vode na 1 del izdelka", { exact: true })
+    .selectOption("1");
+  await page
+    .getByText(
+      "Porabo potrdi s poskusnim nanosom; podatek za izbrano redčenje ni potrjen.",
+      { exact: true },
+    )
+    .waitFor();
+  await page
+    .getByLabel("Deli vode na 1 del izdelka", { exact: true })
+    .selectOption("0");
+  await page.locator("#result-area").fill("100");
+  await page.getByText("6,67–20 L", { exact: true }).waitFor();
+  await page.getByText("Informacije o stranki", { exact: false }).click();
+  await page
+    .getByLabel("Ime stranke", { exact: true })
+    .fill("Črt Šušterič — test");
+  await page.getByLabel("Lokacija projekta", { exact: true }).fill("Ljubljana");
+  await page
+    .getByLabel("Kontaktni podatki", { exact: true })
+    .fill("test@example.invalid");
+  const saveButton = page.getByRole("button", {
+    name: "Shrani za strokovni pregled / povpraševanje",
+    exact: false,
+  });
+  assert.equal(await saveButton.isDisabled(), true);
   await page
     .getByLabel(
       "Dovoljujem shranjevanje podatkov in fotografij za obravnavo pri Mavru.",
+      { exact: true },
     )
     .check();
-  await page
-    .getByRole("button", {
-      name: "Shrani za strokovni pregled / povpraševanje",
-      exact: true,
-    })
-    .click();
+  const savedResponse = page.waitForResponse(
+    (r) => r.url().endsWith("/api/diagnose") && r.request().method() === "POST",
+  );
+  await saveButton.click();
+  const response = await savedResponse;
+  assert.equal(response.status(), 200);
+  const savedCase = (await response.json()).case;
   await page.getByText("Čaka na pregled", { exact: true }).waitFor();
   const downloadPromise = page.waitForEvent("download");
-  await page.getByRole("button", { name: "Prenesi PDF", exact: true }).click();
+  await page.getByRole("button", { name: "Prenesi PDF", exact: false }).click();
   const download = await downloadPromise;
   await download.saveAs(path.join(temporary, "report.pdf"));
-  if (process.env.BROWSER_OUTPUT_DIR) {
-    await mkdir(process.env.BROWSER_OUTPUT_DIR, { recursive: true });
-    await download.saveAs(
-      path.join(process.env.BROWSER_OUTPUT_DIR, "report.pdf"),
-    );
-  }
   assert.equal(
     (await readFile(path.join(temporary, "report.pdf")))
       .subarray(0, 4)
@@ -133,29 +202,34 @@ try {
   );
   await page.locator("#language").selectOption("hr");
   await page
-    .getByRole("heading", { name: "Preporuka postupka", exact: false })
+    .getByRole("heading", { name: "Preporuka za tvoju površinu.", exact: true })
     .waitFor();
   await page
     .getByText("Blago 1:2; srednje 1:1; jako nerazrijeđeno (proizvod:voda).", {
       exact: true,
     })
     .waitFor();
-  assert.ok(
+  assert.equal(
     await page
-      .getByRole("button", { name: "Preuzmi PDF", exact: true })
+      .getByRole("button", { name: "Preuzmi PDF", exact: false })
       .isDisabled(),
+    true,
   );
-  await page.reload();
+  await page.locator("#language").selectOption("en");
   await page
-    .getByRole("heading", { name: "Preporuka postupka", exact: false })
+    .getByRole("heading", { name: "Your surface recommendation.", exact: true })
     .waitFor();
-  assert.equal(await page.locator("#language").inputValue(), "hr");
-  await page.locator("#substrate").selectOption("Concrete");
   await page
-    .locator("#contamination")
-    .selectOption("Green deposits (algae/moss/lichen)");
+    .getByText("Light 1:2; medium 1:1; heavy undiluted (product:water).", {
+      exact: true,
+    })
+    .waitFor();
+  await page.locator("#language").selectOption("nl");
   await page
-    .getByRole("heading", { name: "FacadeClean HC", exact: true })
+    .getByRole("heading", { name: "Advies voor jouw ondergrond.", exact: true })
+    .waitFor();
+  await page
+    .getByRole("heading", { name: "Reinigingsproces", exact: true })
     .waitFor();
   const output = process.env.BROWSER_OUTPUT_DIR;
   if (output) {
@@ -166,7 +240,6 @@ try {
     });
   }
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.waitForTimeout(200);
   assert.ok(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
@@ -177,6 +250,33 @@ try {
       path: path.join(output, "mobile.png"),
       fullPage: true,
     });
+  await page.locator("#language").selectOption("hr");
+  await page.reload();
+  await page
+    .getByRole("heading", { name: "Što želiš očistiti?", exact: true })
+    .waitFor();
+  assert.equal(await page.locator("#language").inputValue(), "hr");
+  await page
+    .getByText("Moji spremljeni slučajevi na ovom uređaju", { exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: new RegExp(savedCase.id.slice(0, 8)) })
+    .click();
+  await page
+    .getByRole("heading", {
+      name: "Priporočilo za tvojo površino.",
+      exact: true,
+    })
+    .waitFor();
+  await page
+    .getByRole("heading", { name: "FacadeClean HC", exact: true })
+    .waitFor();
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Prenesi PDF", exact: false })
+      .isEnabled(),
+    true,
+  );
   const unauthorized = await browser.newContext();
   assert.equal(
     (await unauthorized.request.get(origin + "/api/analyses")).status(),
@@ -212,7 +312,7 @@ try {
     });
   assert.deepEqual(errors, []);
   console.log(
-    "Browser checks passed: wood/paint correction, live calculation, photo/save/PDF, HR instructions, unsaved-change lock, 390px layout, private administration, technical review.",
+    "Browser checks passed: mocked AI proposal and manual confirmation, wood/paint correction, editable quantity without losing focus, dilution estimate guard, real case/photo/PDF, all four languages, immutable case restore, private administration and review.",
   );
 } finally {
   if (browser) await browser.close();

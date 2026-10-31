@@ -1,5 +1,34 @@
 import type { Language, Localized } from "./domain";
 const messages = {
+  continue: ["Nadaljuj", "Nastavi", "Continue", "Doorgaan"],
+  newCase: ["Nov primer", "Novi slučaj", "New case", "Nieuwe aanvraag"],
+  photos: ["Fotografije", "Fotografije", "Photos", "Foto’s"],
+  privacyLink: ["Zasebnost", "Privatnost", "Privacy", "Privacy"],
+  admin: ["Administracija", "Administracija", "Administration", "Beheer"],
+  details: [
+    "Podatki za obravnavo",
+    "Podaci za obradu",
+    "Case details",
+    "Aanvraaggegevens",
+  ],
+  saveHint: [
+    "Shrani primer za strokovni pregled in prenos PDF-ja.",
+    "Spremi slučaj za stručni pregled i preuzimanje PDF-a.",
+    "Save the case for expert review and PDF download.",
+    "Sla de aanvraag op voor deskundig advies en een PDF-download.",
+  ],
+  aiNotes: [
+    "AI zapis v jeziku analize",
+    "AI bilješka na jeziku analize",
+    "AI notes in the analysis language",
+    "AI-notities in de analysetaal",
+  ],
+  limitPhotos: [
+    "Dodaj največ 5 fotografij.",
+    "Dodaj najviše 5 fotografija.",
+    "Add up to 5 photos.",
+    "Voeg maximaal 5 foto’s toe.",
+  ],
   area: ["Površina (m²)", "Površina (m²)", "Area (m²)", "Oppervlak (m²)"],
   water: [
     "Deli vode na 1 del izdelka",

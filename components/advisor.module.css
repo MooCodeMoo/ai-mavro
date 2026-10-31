@@ -794,3 +794,332 @@
     font-size: 23px;
   }
 }
+.fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.fieldset > label:not(.confirm) {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  margin: 0 0 8px;
+}
+.fieldset > select {
+  margin-bottom: 22px;
+  width: 100%;
+  border: 1px solid #dce2e2;
+  border-radius: 6px;
+  min-height: 46px;
+  background: #fff;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #4b5555;
+}
+.fieldset > select:has(option:checked:disabled) {
+  color: #a1aaaa;
+}
+.photos {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+.photoItem {
+  position: relative;
+  text-align: left;
+  border: 1px solid #e4eaea;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.photoItem > img {
+  width: 100%;
+  height: 155px;
+  object-fit: cover;
+  display: block;
+}
+.app .removePhoto {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  border: 0;
+  background: #ffffffed;
+  width: 27px;
+  height: 27px;
+  min-height: 27px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 20px;
+  color: #5f7070;
+}
+.aiResult {
+  padding: 12px;
+  font-size: 11px;
+  color: #7b9090;
+}
+.aiResult > strong {
+  font-weight: 500;
+  font-size: 11px;
+  color: #506666;
+}
+.aiResult > p {
+  margin-top: 7px;
+  font-size: 10px;
+}
+.aiResult > small {
+  font-size: 9px;
+  display: block;
+  margin-top: 8px;
+}
+.aiResult > .textButton {
+  font-size: 10px;
+  white-space: normal;
+  text-align: left;
+  line-height: 1.6;
+}
+.aiActions {
+  padding: 0 30px 20px;
+  text-align: center;
+}
+.aiActions > p {
+  font-size: 10px;
+  color: #8b9e9e;
+  line-height: 1.8;
+  margin: 0 0 14px;
+}
+.aiActions > .primary {
+  max-width: 300px;
+  margin: auto;
+}
+.aiActions > p:last-child {
+  margin: 12px 0 0;
+}
+.loading {
+  padding: 40px 30px;
+  text-align: center;
+  font-size: 12px;
+  color: #8b9e9e;
+}
+.waterControl {
+  display: block;
+  font-size: 9px;
+  font-weight: 400;
+  color: #9baaaa;
+  margin-top: 13px;
+}
+.waterControl select {
+  font-size: 11px;
+  padding: 5px 8px;
+  min-height: 33px;
+  margin-top: 5px;
+  border: 1px solid #e0e7e7;
+  max-width: 110px;
+}
+.related {
+  margin: 0 30px 22px;
+  padding: 0 0 16px;
+  border-bottom: 1px solid #edf1f1;
+  font-size: 11px;
+  color: #849999;
+}
+.related summary {
+  font-size: 10px;
+  line-height: 1.8;
+}
+.related p {
+  margin-top: 12px;
+  font-size: 10px;
+}
+.related a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.saveCard {
+  margin-top: 22px;
+  padding: 26px 30px;
+}
+.saveHint {
+  color: #819696;
+  font-size: 12px;
+  line-height: 1.8;
+  margin-bottom: 18px !important;
+}
+.customerDetails {
+  font-size: 12px;
+  color: #6b8383;
+  border-bottom: 1px solid #edf1f1;
+  padding-bottom: 17px;
+  margin-bottom: 20px;
+}
+.customerDetails summary > span {
+  color: #a0afaf;
+  font-size: 10px;
+  margin-left: 8px;
+}
+.customerFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-top: 17px;
+}
+.customerFields label {
+  font-size: 10px;
+  font-weight: 400;
+  color: #90a1a1;
+}
+.customerFields label:last-child {
+  grid-column: 1/-1;
+}
+.customerFields input,
+.email input {
+  font-size: 12px;
+  min-height: 41px;
+  padding: 8px 11px;
+  border: 1px solid #dce5e5;
+  border-radius: 6px;
+  margin-top: 6px;
+}
+.saveCard .confirm {
+  margin-bottom: 10px;
+}
+.privacyLink {
+  font-size: 9px;
+  display: inline-block;
+  color: #9badad !important;
+  margin-bottom: 19px;
+}
+.saved {
+  padding-top: 24px;
+  margin-top: 25px;
+  border-top: 1px solid #e3ecec;
+}
+.savedStatus {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+.savedStatus strong {
+  font-size: 12px;
+  font-weight: 400;
+  color: #5d7d70;
+}
+.savedStatus span {
+  font-size: 10px;
+  color: #a0afaf;
+  overflow-wrap: anywhere;
+}
+.changed,
+.message {
+  background: #f0f4f4;
+  border: 1px solid #e4ebeb;
+  padding: 15px;
+  border-radius: 7px;
+  color: #748d8d;
+  font-size: 11px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  margin: 18px 0 !important;
+}
+.message {
+  white-space: pre-wrap;
+}
+.email {
+  font-size: 11px;
+  color: #8ca1a1;
+  margin-top: 18px;
+}
+.email > label {
+  font-size: 10px;
+  font-weight: 400;
+  margin: 12px 0;
+}
+.history {
+  border-top: 1px solid #e3ebeb;
+  margin-top: 30px;
+  padding-top: 14px;
+  font-size: 11px;
+  color: #9aadad;
+}
+.history > .textButton {
+  display: flex;
+  font-size: 10px;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+.liveFooter {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.liveFooter a {
+  color: #8da0a0;
+}
+.saveCard .primary {
+  white-space: normal;
+  text-align: left;
+}
+.form .fieldset:disabled {
+  opacity: 0.7;
+}
+@media (max-width: 640px) {
+  .photos {
+    gap: 10px;
+  }
+  .photoItem > img {
+    height: 120px;
+  }
+  .dropzone:has(.photos) {
+    padding: 20px 18px;
+  }
+  .aiActions {
+    padding: 0 20px 20px;
+  }
+  .aiResult {
+    padding: 10px;
+  }
+  .aiResult > strong {
+    font-size: 10px;
+  }
+  .aiResult > p {
+    font-size: 9px;
+  }
+  .aiResult > .textButton {
+    font-size: 9px;
+  }
+  .aiActions > p {
+    font-size: 9px;
+  }
+  .saveCard {
+    padding: 23px 22px;
+  }
+  .customerFields {
+    grid-template-columns: 1fr;
+  }
+  .customerFields label:last-child {
+    grid-column: auto;
+  }
+  .saveHint {
+    font-size: 11px;
+  }
+  .related {
+    margin: 0 22px 20px;
+  }
+  .saveCard .confirm {
+    font-size: 11px;
+    align-items: flex-start;
+    line-height: 1.8;
+  }
+  .saveCard .confirm input {
+    margin-top: 4px;
+  }
+  .liveFooter {
+    font-size: 9px;
+  }
+  .changed,
+  .message {
+    font-size: 10px;
+  }
+}

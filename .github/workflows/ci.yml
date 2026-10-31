@@ -19,3 +19,8 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+
+      - name: Install Chromium for the functional browser check
+        run: npx playwright install --with-deps chromium
+      - name: Verify the full adviser workflow
+        run: npm run test:browser

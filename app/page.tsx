@@ -1,505 +1,292 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { useState, useRef } from "react";
 import {
+  LANGUAGES,
   SUBSTRATES,
   CONTAMINATIONS,
-  LANGUAGES,
-  type AIAnalysis,
-  type CaseInput,
   type Language,
-  type SavedCase,
-  type Treatment,
 } from "@/lib/domain";
-import { translations, languageNames } from "@/lib/translations";
+import { advisorCopy, advisorLanguageNames } from "@/lib/advisor-copy";
 import { copy } from "@/lib/ui-copy";
-import { compressPhoto, downloadResponse, jsonRequest } from "@/lib/client";
-import { findProduct } from "@/lib/products";
-import { TreatmentResult } from "@/components/treatment-result";
-const initial: CaseInput = {
-  substrate: "",
-  contamination: "",
-  language: "sl",
-  customerName: "",
-  location: "",
-  contactInfo: "",
-  area: null,
-  waterParts: 0,
-  acidResistant: false,
-  uncoated: false,
-  confirmed: false,
-  consent: false,
-  aiAnalysis: null,
-  photos: [],
-};
+import { useAdvisor } from "@/components/use-advisor";
+import { AdvisorResult } from "@/components/advisor-result";
+import s from "@/components/advisor.module.css";
 export default function Home() {
-  const [input, setInput] = useState<CaseInput>(initial),
-    [dark, setDark] = useState(false),
-    [preferencesLoaded, setPreferencesLoaded] = useState(false),
-    [history, setHistory] = useState<string[]>([]),
-    [busy, setBusy] = useState(""),
-    [message, setMessage] = useState(""),
-    [recipient, setRecipient] = useState(""),
-    [analyses, setAnalyses] = useState<(AIAnalysis | null)[]>([]),
-    [saved, setSaved] = useState<{
-      item: SavedCase;
-      fingerprint: string;
-    } | null>(null);
-  const [result, setResult] = useState<{
-    key: string;
-    treatment: Treatment | null;
-    error?: string;
-  } | null>(null);
+  const a = useAdvisor();
   const chooser = useRef<HTMLInputElement>(null),
     camera = useRef<HTMLInputElement>(null);
-  const lang = input.language,
-    t = translations[lang];
-  const selection = JSON.stringify({
-    substrate: input.substrate,
-    contamination: input.contamination,
-    language: lang,
-    area: input.area,
-    waterParts: input.waterParts,
-    acidResistant: input.acidResistant,
-    uncoated: input.uncoated,
-  });
-  const treatment = result?.key === selection ? result.treatment : null,
-    loading =
-      !!input.substrate && !!input.contamination && result?.key !== selection;
-  const fingerprint = JSON.stringify(input),
-    savedCurrent = !!saved && saved.fingerprint === fingerprint;
-  const displayedTreatment = savedCurrent ? saved!.item.treatment : treatment;
-  const product = treatment ? findProduct(treatment.productId) : null;
-  function update<K extends keyof CaseInput>(key: K, value: CaseInput[K]) {
-    setInput((prev) => ({
-      ...prev,
-      [key]: value,
-      ...(["substrate", "contamination"].includes(key)
-        ? { confirmed: false, waterParts: 0 }
-        : {}),
-      ...(key === "substrate" ? { acidResistant: false, uncoated: false } : {}),
-    }));
-    setMessage("");
-  }
-  useEffect(() => {
-    // Defer browser-only preferences until hydration completes.
-    const frame = requestAnimationFrame(() => {
-      try {
-        const preferred = localStorage.getItem("mavro-language");
-        if (LANGUAGES.includes(preferred as Language))
-          setInput((prev) => ({ ...prev, language: preferred as Language }));
-        setDark(localStorage.getItem("mavro-dark-mode") === "true");
-        const ids = JSON.parse(
-          localStorage.getItem("mavro-case-history") || "[]",
-        );
-        if (Array.isArray(ids))
-          setHistory(
-            ids
-              .filter(
-                (id) => typeof id === "string" && /^[a-f0-9-]{36}$/.test(id),
-              )
-              .slice(0, 20),
-          );
-      } catch {}
-      setPreferencesLoaded(true);
-    });
-    return () => cancelAnimationFrame(frame);
-  }, []);
-  useEffect(() => {
-    if (!preferencesLoaded) return;
-    document.documentElement.lang = lang;
-    try {
-      localStorage.setItem("mavro-language", lang);
-      localStorage.setItem("mavro-dark-mode", String(dark));
-    } catch {}
-  }, [lang, dark, preferencesLoaded]);
-  useEffect(() => {
-    const selected = JSON.parse(selection);
-    if (!selected.substrate || !selected.contamination) return;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => {
-      jsonRequest<{ treatment: Treatment | null }>(
-        "/api/recommend",
-        selected,
-        "POST",
-        controller.signal,
-      )
-        .then((data) =>
-          setResult({ key: selection, treatment: data.treatment }),
-        )
-        .catch((error) => {
-          if (!controller.signal.aborted)
-            setResult({
-              key: selection,
-              treatment: null,
-              error: String(error.message),
-            });
-        });
-    }, 250);
-    return () => {
-      clearTimeout(timeout);
-      controller.abort();
-    };
-  }, [selection]);
-  async function action(name: string, fn: () => Promise<void>) {
-    setBusy(name);
-    setMessage("");
-    try {
-      await fn();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : copy(lang, "failed"));
-    } finally {
-      setBusy("");
-    }
-  }
-  async function addPhotos(files: FileList | null) {
-    if (!files || busy) return;
-    const incoming = Array.from(files).slice(0, 5 - input.photos.length);
-    await action("photos", async () => {
-      const added = await Promise.all(incoming.map(compressPhoto));
-      setInput((prev) => ({
-        ...prev,
-        photos: [...prev.photos, ...added].slice(0, 5),
-      }));
-      setAnalyses((prev) => [...prev, ...added.map(() => null)]);
-    });
-  }
-  function chooseAnalysis(analysis: AIAnalysis) {
-    setInput((prev) => ({
-      ...prev,
-      substrate: analysis.surfaceSuggestion || prev.substrate,
-      contamination: analysis.detectedContamination || prev.contamination,
-      aiAnalysis: analysis,
-      waterParts: 0,
-      confirmed: false,
-      acidResistant: false,
-      uncoated: false,
-    }));
-  }
-  async function analyze() {
-    await action("ai", async () => {
-      const next: (AIAnalysis | null)[] = [];
-      const errors: string[] = [];
-      for (const photo of input.photos) {
-        try {
-          const data = await jsonRequest<{ analysis: AIAnalysis }>(
-            "/api/analyze-image",
-            { image: photo.data, language: lang },
-          );
-          next.push(data.analysis);
-        } catch (error) {
-          next.push(null);
-          errors.push(
-            error instanceof Error ? error.message : copy(lang, "failed"),
-          );
-        }
-      }
-      setAnalyses(next);
-      const first = next[0];
-      if (
-        first &&
-        first.confidence >= 0.8 &&
-        first.surfaceSuggestion &&
-        first.detectedContamination
-      )
-        chooseAnalysis(first);
-      if (errors.length) setMessage(errors[0]);
-    });
-  }
-  async function save() {
-    await action("save", async () => {
-      const data = await jsonRequest<{ case: SavedCase }>(
-        "/api/diagnose",
-        input,
-      );
-      setSaved({ item: data.case, fingerprint });
-      const ids = [data.case.id, ...history].slice(0, 20);
-      setHistory(ids);
-      try {
-        localStorage.setItem("mavro-case-history", JSON.stringify(ids));
-      } catch {}
-      setMessage(`${copy(lang, "saved")} ${data.case.id}`);
-    });
-  }
-  async function restore(id: string) {
-    await action("restore", async () => {
-      const data = await jsonRequest<{ case: SavedCase }>(`/api/cases/${id}`);
-      const photos = await Promise.all(
-        data.case.photos.map(async (photo) => {
-          const response = await fetch(`/api/cases/${id}/photos/${photo.id}`);
-          if (!response.ok) throw new Error(copy(lang, "failed"));
-          const blob = await response.blob();
-          return new Promise<{ name: string; data: string }>(
-            (resolve, reject) => {
-              const reader = new FileReader();
-              reader.onload = () =>
-                resolve({ name: photo.name, data: String(reader.result) });
-              reader.onerror = reject;
-              reader.readAsDataURL(blob);
-            },
-          );
-        }),
-      );
-      const restored = { ...data.case.input, photos };
-      setInput(restored);
-      setSaved({ item: data.case, fingerprint: JSON.stringify(restored) });
-      setAnalyses(restored.aiAnalysis ? [restored.aiAnalysis] : []);
-    });
-  }
-  async function download() {
-    if (!savedCurrent || !saved) return;
-    await action("pdf", async () => {
-      const response = await fetch("/api/generate-pdf", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ caseId: saved.item.id }),
-      });
-      await downloadResponse(response, `Mavro-${saved.item.id}.pdf`);
-    });
-  }
-  async function email() {
-    if (!savedCurrent || !saved) return;
-    await action("email", async () => {
-      await jsonRequest("/api/send-pdf-email", {
-        caseId: saved.item.id,
-        recipientEmail: recipient,
-      });
-      setMessage(t.step4.emailSent);
-    });
-  }
-  const section = (n: number, title: string) => (
-    <h2>
-      <span className="step-number">{n}</span>
-      {title}
-    </h2>
-  );
+  const { input, lang, t, step, busy, update } = a;
+  const c = advisorCopy[lang],
+    locked = !!busy;
+  const [dragging, setDragging] = useState(false);
   return (
-    <div className={`advisor ${dark ? "theme-dark" : ""}`}>
-      <header className="brand-header">
-        <div className="shell header-inner">
-          <div>
-            <Image
-              src="/mavro-logo.png"
-              alt="Mavro"
-              width={160}
-              height={48}
-              priority
-              className="brand-logo"
-            />
-            <p>{t.header.subtitle}</p>
-          </div>
-          <div className="toolbar">
-            <label className="sr-only" htmlFor="language">
-              {t.language}
-            </label>
-            <select
-              id="language"
-              value={lang}
-              onChange={(e) => update("language", e.target.value as Language)}
-            >
-              {LANGUAGES.map((code) => (
-                <option key={code} value={code}>
-                  {languageNames[code]}
-                </option>
-              ))}
-            </select>
-            <button
-              onClick={() => setDark(!dark)}
-              aria-label={t.header.darkModeLabel}
-            >
-              {dark ? "☀" : "☾"}
-            </button>
-          </div>
-        </div>
+    <div className={s.app} lang={lang}>
+      <header className={s.header}>
+        <Link href="/" className={s.brand} aria-label="Mavro AI">
+          <Image
+            src="/mavro-logo.png"
+            alt="Mavro"
+            width={128}
+            height={22}
+            priority
+          />
+          <span>AI</span>
+        </Link>
+        <label className={s.languagePicker}>
+          <span className={s.hidden}>{t.language}</span>
+          <svg
+            width="17"
+            height="17"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.4"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="9" />
+            <ellipse cx="12" cy="12" rx="4" ry="9" />
+            <path d="M3 12h18" />
+          </svg>
+          <select
+            id="language"
+            aria-label={t.language}
+            disabled={locked}
+            value={lang}
+            onChange={(e) => update("language", e.target.value as Language)}
+          >
+            {LANGUAGES.map((code) => (
+              <option key={code} value={code}>
+                {advisorLanguageNames[code]}
+              </option>
+            ))}
+          </select>
+        </label>
       </header>
-      <main className="shell advisor-grid">
-        <div className="workflow">
-          <section className="card">
-            <h2>
-              {t.customerInfo.title}
-              <small>{t.customerInfo.optional}</small>
-            </h2>
-            <div className="field-grid">
-              <label>
-                {t.customerInfo.customerName}
-                <input
-                  value={input.customerName}
-                  maxLength={200}
-                  onChange={(e) => update("customerName", e.target.value)}
-                  autoComplete="name"
-                />
-              </label>
-              <label>
-                {t.customerInfo.projectLocation}
-                <input
-                  value={input.location}
-                  maxLength={300}
-                  onChange={(e) => update("location", e.target.value)}
-                />
-              </label>
-              <label>
-                {t.customerInfo.contactInfo}
-                <input
-                  value={input.contactInfo}
-                  maxLength={300}
-                  onChange={(e) => update("contactInfo", e.target.value)}
-                />
-              </label>
-            </div>
-          </section>
-          <section className="card">
-            {section(1, t.step1.title)}
-            <p className="small muted">{copy(lang, "privacy")}</p>
+      <main className={`${s.main} ${step === 2 ? s.resultMain : ""}`}>
+        <div className={s.heading}>
+          <p className={s.progress}>
+            {c.step} {step + 1} {c.of} 3
+          </p>
+          <h1>{c.titles[step]}</h1>
+          <p>{c.subtitles[step]}</p>
+        </div>
+        {step === 0 && (
+          <section className={s.card} aria-label={c.upload}>
             <div
-              className="upload-zone"
-              onDragOver={(e) => e.preventDefault()}
+              className={`${s.dropzone} ${dragging ? s.dragging : ""}`}
+              onDragOver={(e) => {
+                e.preventDefault();
+                if (!locked) setDragging(true);
+              }}
+              onDragLeave={() => setDragging(false)}
               onDrop={(e) => {
                 e.preventDefault();
-                void addPhotos(e.dataTransfer.files);
+                setDragging(false);
+                if (!locked) void a.addPhotos(e.dataTransfer.files);
               }}
             >
-              <div className="toolbar">
-                <button
-                  disabled={!!busy || input.photos.length >= 5}
-                  onClick={() => chooser.current?.click()}
-                >
-                  {t.step1.selectImages}
-                </button>
-                <button
-                  disabled={!!busy || input.photos.length >= 5}
-                  onClick={() => camera.current?.click()}
-                >
-                  {t.step1.takePhoto}
-                </button>
-                <span className="small muted">{input.photos.length}/5</span>
-              </div>
-              <input
-                ref={chooser}
-                hidden
-                type="file"
-                multiple
-                accept="image/jpeg,image/png,image/webp"
-                onChange={(e) => {
-                  void addPhotos(e.target.files);
-                  e.target.value = "";
-                }}
-              />
-              <input
-                ref={camera}
-                hidden
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={(e) => {
-                  void addPhotos(e.target.files);
-                  e.target.value = "";
-                }}
-              />
-              <div className="photo-grid">
-                {input.photos.map((photo, i) => (
-                  <div className="photo-tile" key={`${photo.name}-${i}`}>
-                    <Image
-                      src={photo.data}
-                      alt={photo.name}
-                      width={240}
-                      height={160}
-                      unoptimized
-                    />
-                    <button
-                      className="remove"
-                      disabled={!!busy}
-                      aria-label={t.step1.removeImage}
-                      onClick={() => {
-                        update(
-                          "photos",
-                          input.photos.filter((_, index) => index !== i),
-                        );
-                        setAnalyses((prev) =>
-                          prev.filter((_, index) => index !== i),
-                        );
-                        update("aiAnalysis", null);
-                      }}
-                    >
-                      ×
-                    </button>
-                    {analyses[i] && (
-                      <div className="photo-result">
-                        <strong>
-                          {Math.round(analyses[i]!.confidence * 100)}%
-                        </strong>
-                        <p>
-                          {t.surfaces[analyses[i]!.surfaceSuggestion || ""] ||
-                            "—"}{" "}
-                          ·{" "}
-                          {t.contaminations[
-                            analyses[i]!.detectedContamination || ""
-                          ] || "—"}
-                        </p>
-                        <p>{analyses[i]!.notes}</p>
-                        <button
-                          disabled={!!busy}
-                          onClick={() => chooseAnalysis(analyses[i]!)}
-                        >
-                          {copy(lang, "choose")}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+              {input.photos.length === 0 ? (
+                <>
+                  <svg
+                    width="36"
+                    height="36"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.2"
+                    aria-hidden="true"
+                  >
+                    <rect x="3" y="5" width="18" height="16" rx="3" />
+                    <circle cx="8" cy="10" r="1.5" />
+                    <path d="m4 19 5-5 4 3 4-5 4 5M12 2v6m-3-3 3-3 3 3" />
+                  </svg>
+                  <h2>{c.upload}</h2>
+                  <p>{c.drop}</p>
+                </>
+              ) : (
+                <div className={s.photos}>
+                  {input.photos.map((photo, i) => (
+                    <div className={s.photoItem} key={`${photo.name}-${i}`}>
+                      <Image
+                        src={photo.data}
+                        alt={photo.name}
+                        width={240}
+                        height={160}
+                        unoptimized
+                      />
+                      <button
+                        className={s.removePhoto}
+                        disabled={locked}
+                        aria-label={`${t.step1.removeImage} ${i + 1}`}
+                        onClick={() => a.removePhoto(i)}
+                      >
+                        ×
+                      </button>
+                      {a.analyses[i] && (
+                        <div className={s.aiResult}>
+                          <strong>
+                            {Math.round(a.analyses[i]!.confidence * 100)}% ·{" "}
+                            {t.surfaces[
+                              a.analyses[i]!.surfaceSuggestion || ""
+                            ] || "—"}
+                          </strong>
+                          <p>
+                            {t.contaminations[
+                              a.analyses[i]!.detectedContamination || ""
+                            ] || "—"}
+                          </p>
+                          <p lang={a.analysisLanguage}>
+                            {a.analyses[i]!.notes}
+                          </p>
+                          {a.analysisLanguage !== lang && (
+                            <small>
+                              {copy(lang, "aiNotes")} ·{" "}
+                              {advisorLanguageNames[a.analysisLanguage]}
+                            </small>
+                          )}
+                          <button
+                            className={s.textButton}
+                            disabled={locked}
+                            onClick={() => {
+                              a.chooseAnalysis(a.analyses[i]!);
+                              a.setStep(1);
+                            }}
+                          >
+                            {copy(lang, "choose")} →
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button
+                className={s.primary}
+                disabled={locked || input.photos.length >= 5}
+                onClick={() => chooser.current?.click()}
+              >
+                {busy === "photos"
+                  ? copy(lang, "loading")
+                  : input.photos.length
+                    ? t.step1.addMore(input.photos.length)
+                    : c.choose}
+                <span aria-hidden="true">＋</span>
+              </button>
+              <button
+                className={s.textButton}
+                disabled={locked || input.photos.length >= 5}
+                onClick={() => camera.current?.click()}
+              >
+                {t.step1.takePhoto}
+              </button>
+              <small>
+                {c.formats} · {copy(lang, "limitPhotos")}
+              </small>
             </div>
             {input.photos.length > 0 && (
-              <button
-                className="primary"
-                disabled={!!busy}
-                onClick={() => void analyze()}
-              >
-                {busy === "ai" ? t.step1.analyzing : t.step1.analyzeAI}
-              </button>
+              <div className={s.aiActions}>
+                <p>{copy(lang, "privacy")}</p>
+                <button
+                  className={s.primary}
+                  disabled={locked}
+                  onClick={() => void a.analyze()}
+                >
+                  {busy === "ai" ? t.step1.analyzing : t.step1.analyzeAI}{" "}
+                  <span aria-hidden="true">✧</span>
+                </button>
+                <p>{copy(lang, "uncertainty")}</p>
+              </div>
             )}
-            <p className="small muted">{copy(lang, "uncertainty")}</p>
+            <div className={s.manual}>
+              <button
+                className={s.textButton}
+                disabled={locked}
+                onClick={() => a.setStep(1)}
+              >
+                {input.photos.length ? copy(lang, "continue") : c.manual} →
+              </button>
+            </div>
           </section>
-          <section className="card">
-            {section(2, t.step2.title)}
-            <label className="sr-only" htmlFor="substrate">
-              {t.step2.title}
-            </label>
-            <select
-              id="substrate"
-              value={input.substrate}
-              onChange={(e) => update("substrate", e.target.value)}
-            >
-              <option value="">{t.step2.placeholder}</option>
-              {SUBSTRATES.map((value) => (
-                <option key={value} value={value}>
-                  {t.surfaces[value] || value}
+        )}
+        {step === 1 && (
+          <form
+            className={`${s.card} ${s.form}`}
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (input.substrate && input.contamination && input.confirmed)
+                a.setStep(2);
+            }}
+          >
+            <fieldset disabled={locked} className={s.fieldset}>
+              {input.photos.length > 0 && (
+                <div className={s.photoRow}>
+                  <Image
+                    src={input.photos[0].data}
+                    alt={c.photoAlt}
+                    width={64}
+                    height={64}
+                    unoptimized
+                  />
+                  <div>
+                    <strong>
+                      {t.step1.imagesSelected(input.photos.length)}
+                    </strong>
+                  </div>
+                  <button
+                    type="button"
+                    className={s.textButton}
+                    onClick={() => a.setStep(0)}
+                  >
+                    {c.replace}
+                  </button>
+                </div>
+              )}
+              <label htmlFor="substrate">{c.surface}</label>
+              <select
+                id="substrate"
+                value={input.substrate}
+                required
+                onChange={(e) => update("substrate", e.target.value)}
+              >
+                <option value="" disabled>
+                  {c.selectSurface}
                 </option>
-              ))}
-            </select>
-            {section(3, t.step3.title)}
-            <label className="sr-only" htmlFor="contamination">
-              {t.step3.title}
-            </label>
-            <select
-              id="contamination"
-              value={input.contamination}
-              onChange={(e) => update("contamination", e.target.value)}
-            >
-              <option value="">{t.step3.placeholder}</option>
-              {CONTAMINATIONS.map((value) => (
-                <option key={value} value={value}>
-                  {t.contaminations[value] || value}
+                {SUBSTRATES.map((value) => (
+                  <option value={value} key={value}>
+                    {t.surfaces[value]}
+                  </option>
+                ))}
+              </select>
+              <label htmlFor="contamination">{c.dirt}</label>
+              <select
+                id="contamination"
+                value={input.contamination}
+                required
+                onChange={(e) => update("contamination", e.target.value)}
+              >
+                <option value="" disabled>
+                  {c.selectDirt}
                 </option>
-              ))}
-            </select>
-            <div className="field-grid">
-              <label>
-                {copy(lang, "area")}
+                {CONTAMINATIONS.map((value) => (
+                  <option value={value} key={value}>
+                    {t.contaminations[value]}
+                  </option>
+                ))}
+              </select>
+              <details className={s.optional}>
+                <summary>
+                  {c.addArea} <span>{c.optional}</span>
+                </summary>
+                <label htmlFor="area">{copy(lang, "area")}</label>
                 <input
+                  id="area"
                   type="number"
-                  min={0.01}
-                  max={1_000_000}
+                  min="0.01"
+                  max="1000000"
                   step="any"
+                  placeholder={c.areaPlaceholder}
                   value={input.area ?? ""}
                   onChange={(e) =>
                     update(
@@ -508,183 +295,256 @@ export default function Home() {
                     )
                   }
                 />
-              </label>
-              <label>
-                {copy(lang, "water")}
-                <select
-                  value={input.waterParts}
-                  onChange={(e) => update("waterParts", Number(e.target.value))}
-                >
-                  {(product?.allowedWaterParts || [0, 1, 2, 5, 10, 20, 30]).map(
-                    (value) => (
-                      <option key={value} value={value}>
-                        {value === 0 ? "1:0" : `1:${value}`}
-                      </option>
-                    ),
-                  )}
-                </select>
-              </label>
-            </div>
-            {input.contamination === "Efflorescence / cement veil" && (
-              <label className="checkbox">
-                <input
-                  type="checkbox"
-                  checked={input.acidResistant}
-                  onChange={(e) => update("acidResistant", e.target.checked)}
-                />
-                {copy(lang, "acid")}
-              </label>
-            )}
-            {["Aluminium", "Steel / iron"].includes(input.substrate) &&
-              input.contamination !== "Paint" && (
-                <label className="checkbox">
+              </details>
+              {input.contamination === "Efflorescence / cement veil" && (
+                <label className={s.confirm}>
                   <input
                     type="checkbox"
-                    checked={input.uncoated}
-                    onChange={(e) => update("uncoated", e.target.checked)}
+                    checked={input.acidResistant}
+                    onChange={(e) => update("acidResistant", e.target.checked)}
                   />
-                  {copy(lang, "uncoated")}
+                  {copy(lang, "acid")}
                 </label>
               )}
-            <label className="checkbox">
-              <input
-                type="checkbox"
-                checked={input.confirmed}
-                onChange={(e) => update("confirmed", e.target.checked)}
-              />
-              {copy(lang, "confirm")}
-            </label>
-          </section>
-        </div>
-        <aside className="result-column">
-          <section className="card">
-            {section(4, t.step4.title)}
-            {loading ? (
-              <p role="status">{copy(lang, "loading")}</p>
-            ) : displayedTreatment ? (
-              <TreatmentResult treatment={displayedTreatment} language={lang} />
-            ) : (
-              <div className="panel">
-                <h3>
-                  {input.substrate && input.contamination
-                    ? t.step4.noRecommendationTitle
-                    : t.step4.emptyState}
-                </h3>
-                <p>
-                  {result?.key === selection && result.error
-                    ? result.error
-                    : input.substrate && input.contamination
-                      ? t.step4.noRecommendationText
-                      : ""}
-                </p>
-              </div>
-            )}
-            <label className="checkbox">
-              <input
-                type="checkbox"
-                checked={input.consent}
-                onChange={(e) => update("consent", e.target.checked)}
-              />
-              {copy(lang, "consent")}
-            </label>
-            <a
-              className="small"
-              href="https://mavro-int.shop/files/Privacy_statement_Mavro_International.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {lang === "sl"
-                ? "Zasebnost"
-                : lang === "hr"
-                  ? "Privatnost"
-                  : lang === "nl"
-                    ? "Privacy"
-                    : "Privacy"}
-            </a>
-            <button
-              className="primary full"
-              disabled={
-                !!busy ||
-                !input.substrate ||
-                !input.contamination ||
-                !input.confirmed ||
-                !input.consent
-              }
-              onClick={() => void save()}
-            >
-              {busy === "save" ? t.step4.saving : copy(lang, "request")}
-            </button>
-            {saved && (
-              <div className="panel">
-                <p className="small">ID: {saved.item.id}</p>
-                <p>
-                  {copy(
-                    lang,
-                    saved.item.review === "pending"
-                      ? "pending"
-                      : saved.item.review,
-                  )}
-                </p>
-                {!savedCurrent && (
-                  <p className="notice">{copy(lang, "changes")}</p>
+              {["Aluminium", "Steel / iron"].includes(input.substrate) &&
+                input.contamination !== "Paint" && (
+                  <label className={s.confirm}>
+                    <input
+                      type="checkbox"
+                      checked={input.uncoated}
+                      onChange={(e) => update("uncoated", e.target.checked)}
+                    />
+                    {copy(lang, "uncoated")}
+                  </label>
                 )}
-                <button
-                  disabled={!!busy || !savedCurrent}
-                  onClick={() => void download()}
-                >
-                  {t.step4.downloadPDF}
-                </button>
-                <label>
-                  {copy(lang, "email")}
-                  <input
-                    type="email"
-                    value={recipient}
-                    maxLength={254}
-                    onChange={(e) => setRecipient(e.target.value)}
-                    placeholder={t.step4.emailPlaceholder}
-                  />
-                </label>
-                <button
-                  disabled={
-                    !!busy || !savedCurrent || !/^\S+@\S+\.\S+$/.test(recipient)
-                  }
-                  onClick={() => void email()}
-                >
-                  {busy === "email" ? t.step4.sendingEmail : t.step4.sendEmail}
-                </button>
+              <label className={s.confirm}>
+                <input
+                  type="checkbox"
+                  required
+                  checked={input.confirmed}
+                  onChange={(e) => update("confirmed", e.target.checked)}
+                />
+                {copy(lang, "confirm")}
+              </label>
+              <button
+                className={s.primary}
+                disabled={
+                  !input.substrate || !input.contamination || !input.confirmed
+                }
+              >
+                {c.show} <span aria-hidden="true">→</span>
+              </button>
+            </fieldset>
+          </form>
+        )}
+        {step === 2 && (
+          <>
+            {a.loading && !a.displayedTreatment && !a.savedCurrent ? (
+              <div className={`${s.card} ${s.loading}`} role="status">
+                {copy(lang, "loading")}
               </div>
+            ) : !a.savedCurrent &&
+              a.result?.key === a.selection &&
+              a.result.error ? (
+              <div className={`${s.card} ${s.loading}`} role="alert">
+                {a.result.error}
+              </div>
+            ) : (
+              <AdvisorResult
+                input={input}
+                treatment={a.displayedTreatment}
+                refreshing={a.loading && !a.savedCurrent}
+                busy={locked}
+                onEdit={() => a.setStep(1)}
+                onArea={(value) => update("area", value)}
+                onWater={(value) => update("waterParts", value)}
+              />
             )}
-            {message && (
-              <p role="status" className="notice break-words">
-                {message}
-              </p>
-            )}
-          </section>
-          {history.length > 0 && (
-            <section className="card">
-              <h3>{copy(lang, "history")}</h3>
-              <ul className="history-list">
-                {history.map((id) => (
-                  <li key={id}>
+            <section
+              className={`${s.card} ${s.saveCard}`}
+              aria-label={copy(lang, "details")}
+            >
+              <p className={s.saveHint}>{copy(lang, "saveHint")}</p>
+              <fieldset disabled={locked} className={s.fieldset}>
+                <details className={s.customerDetails}>
+                  <summary>
+                    {t.customerInfo.title} <span>{c.optional}</span>
+                  </summary>
+                  <div className={s.customerFields}>
+                    <label>
+                      {t.customerInfo.customerName}
+                      <input
+                        autoComplete="name"
+                        maxLength={200}
+                        value={input.customerName}
+                        onChange={(e) => update("customerName", e.target.value)}
+                      />
+                    </label>
+                    <label>
+                      {t.customerInfo.projectLocation}
+                      <input
+                        maxLength={300}
+                        value={input.location}
+                        onChange={(e) => update("location", e.target.value)}
+                      />
+                    </label>
+                    <label>
+                      {t.customerInfo.contactInfo}
+                      <input
+                        maxLength={300}
+                        value={input.contactInfo}
+                        onChange={(e) => update("contactInfo", e.target.value)}
+                      />
+                    </label>
+                  </div>
+                </details>
+                <label className={s.confirm}>
+                  <input
+                    type="checkbox"
+                    checked={input.consent}
+                    onChange={(e) => update("consent", e.target.checked)}
+                  />
+                  {copy(lang, "consent")}
+                </label>
+                <a
+                  className={s.privacyLink}
+                  href="https://mavro-int.shop/files/Privacy_statement_Mavro_International.pdf"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {copy(lang, "privacyLink")} ↗
+                </a>
+                <button
+                  className={s.primary}
+                  disabled={
+                    locked || a.loading || !input.confirmed || !input.consent
+                  }
+                  onClick={() => void a.save()}
+                >
+                  {busy === "save" ? t.step4.saving : copy(lang, "request")}{" "}
+                  <span aria-hidden="true">→</span>
+                </button>
+              </fieldset>
+              {a.saved && (
+                <div className={s.saved}>
+                  <div className={s.savedStatus}>
+                    <strong>{copy(lang, a.saved.item.review)}</strong>
+                    <span>ID: {a.saved.item.id}</span>
+                  </div>
+                  {!a.savedCurrent && (
+                    <p className={s.changed} role="status">
+                      {copy(lang, "changes")}
+                    </p>
+                  )}
+                  <button
+                    className={s.primary}
+                    disabled={locked || !a.savedCurrent}
+                    onClick={() => void a.download()}
+                  >
+                    {t.step4.downloadPDF} <span aria-hidden="true">↓</span>
+                  </button>
+                  <details className={s.email}>
+                    <summary>{t.step4.emailLabel}</summary>
+                    <label>
+                      {copy(lang, "email")}
+                      <input
+                        type="email"
+                        disabled={locked}
+                        maxLength={254}
+                        value={a.recipient}
+                        onChange={(e) => a.setRecipient(e.target.value)}
+                        placeholder={t.step4.emailPlaceholder}
+                      />
+                    </label>
                     <button
-                      disabled={!!busy}
-                      onClick={() => void restore(id)}
-                      title={id}
+                      className={s.textButton}
+                      disabled={
+                        locked ||
+                        !a.savedCurrent ||
+                        !/^\S+@\S+\.\S+$/.test(a.recipient)
+                      }
+                      onClick={() => void a.email()}
                     >
-                      {copy(lang, "restored")} · {id.slice(0, 8)}
+                      {busy === "email"
+                        ? t.step4.sendingEmail
+                        : t.step4.sendEmail}{" "}
+                      →
                     </button>
-                  </li>
-                ))}
-              </ul>
+                  </details>
+                </div>
+              )}
             </section>
-          )}
-        </aside>
+          </>
+        )}
+        {a.message && (
+          <p className={s.message} role="status">
+            {a.message}
+          </p>
+        )}
+        {step > 0 && (
+          <div className={s.below}>
+            <button
+              className={s.textButton}
+              disabled={locked}
+              onClick={() => a.setStep(step - 1)}
+            >
+              ← {c.back}
+            </button>
+            <button
+              className={s.textButton}
+              disabled={locked}
+              onClick={a.reset}
+            >
+              {copy(lang, "newCase")}
+            </button>
+          </div>
+        )}
+        {a.history.length > 0 && (
+          <details className={s.history}>
+            <summary>{copy(lang, "history")}</summary>
+            {a.history.map((id) => (
+              <button
+                className={s.textButton}
+                disabled={locked}
+                key={id}
+                title={id}
+                onClick={() => void a.restore(id)}
+              >
+                {copy(lang, "restored")} · {id.slice(0, 8)} →
+              </button>
+            ))}
+          </details>
+        )}
+        <input
+          ref={chooser}
+          className={s.hidden}
+          type="file"
+          multiple
+          accept="image/jpeg,image/png,image/webp"
+          aria-label={copy(lang, "photos")}
+          onChange={(e) => {
+            void a.addPhotos(e.target.files);
+            e.target.value = "";
+          }}
+        />
+        <input
+          ref={camera}
+          className={s.hidden}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          capture="environment"
+          aria-label={t.step1.takePhoto}
+          onChange={(e) => {
+            void a.addPhotos(e.target.files);
+            e.target.value = "";
+          }}
+        />
+        <footer className={`${s.footer} ${s.liveFooter}`}>
+          <span>Mavro International</span>
+          <a href="mailto:info@mavro-int.si">info@mavro-int.si</a>
+          <Link href="/admin">{copy(lang, "admin")}</Link>
+        </footer>
       </main>
-      <footer className="shell page-footer">
-        Mavro Slovenija ·{" "}
-        <a href="mailto:info@mavro-int.si">info@mavro-int.si</a> · +386 41 902
-        700 <a href="/admin">Admin</a>
-      </footer>
     </div>
   );
 }
