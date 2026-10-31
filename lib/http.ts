@@ -61,7 +61,11 @@ export async function readJSON(
 export function sameOrigin(req: NextRequest) {
   const origin = req.headers.get("origin");
   const expected = process.env.APP_ORIGIN || req.nextUrl.origin;
-  if (!origin || origin !== expected)
+  const previewOrigin =
+    process.env.VERCEL_ENV === "preview" && process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : null;
+  if (!origin || (origin !== expected && origin !== previewOrigin))
     throw new HttpError(403, "Invalid request origin");
 }
 export function shortText(value: unknown, max = 200): string {

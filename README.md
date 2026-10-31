@@ -78,3 +78,26 @@ PDF generation uses PDFKit and a bundled licensed DejaVu font. No Python, Report
 `npm run format` formats the maintained application code. Old import scripts are retained for reference and explicitly scoped as legacy CommonJS in ESLint.
 
 To repeat the browser checks, run `npx playwright install chromium` and `npm run build && npm run test:browser`. `CHROMIUM_EXECUTABLE_PATH` can select an already installed Chromium binary. `BROWSER_OUTPUT_DIR` optionally writes synthetic-data screenshots and a PDF outside the repository. The script creates an isolated temporary database, generates test-only credentials, starts/stops its own local production server and never sends live email or calls the AI provider.
+
+## Internal colleague testing
+
+The protected `improve/mavro-advisor-verified-workflow` Vercel preview can use
+`MAVRO_STORAGE=blob` with a private Vercel Blob store and its server-only
+`BLOB_READ_WRITE_TOKEN`. This small internal backend stores case metadata,
+photos, shared rules and rate counters durably; ETag conditional writes avoid
+lost concurrent updates. It is capped at 300 cases. The existing libSQL backend
+remains available by leaving `MAVRO_STORAGE` unset.
+
+With `INTERNAL_TEST_MODE=1`, `SESSION_SECRET`, and Vercel preview/branch system
+variables matching that branch, users admitted by Vercel Deployment Protection
+can enter the internal administration without another password. All admitted
+preview testers have administrative access. Keep deployment protection enabled;
+never share its bypass links publicly. This mode is disabled on production and
+other branches. Production still requires `ADMIN_PASSWORD` and secure sessions.
+
+`AI_GATEWAY_ENABLED=1` uses Vercel AI Gateway with the deployment OIDC identity
+(or a server-only `AI_GATEWAY_API_KEY`) and `AI_GATEWAY_MODEL`. The verified
+model identifier is `anthropic/claude-sonnet-4.6`. Account credits or verification
+may be required; unavailable AI returns an explicit error and manual selection
+remains usable. Without this flag, the existing direct Anthropic configuration
+is used. SMTP is optional and is not configured for this internal trial.

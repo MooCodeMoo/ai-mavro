@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   createSession,
+  internalPreviewLogin,
   isAdmin,
   mutationGuard,
   sessionOptions,
@@ -9,7 +10,10 @@ import {
 import { apiError, HttpError, readJSON, shortText } from "@/lib/http";
 export async function GET(req: NextRequest) {
   return NextResponse.json(
-    { authenticated: isAdmin(req) },
+    {
+      authenticated: isAdmin(req),
+      internalLoginAvailable: internalPreviewLogin(),
+    },
     { headers: { "Cache-Control": "no-store" } },
   );
 }
@@ -17,7 +21,10 @@ export async function POST(req: NextRequest) {
   try {
     await mutationGuard(req, "login", 10, false);
     const data = await readJSON(req, 2000);
-    if (!validPassword(shortText(data.password, 256)))
+    if (
+      !(data.internal === true && internalPreviewLogin()) &&
+      !validPassword(shortText(data.password, 256))
+    )
       throw new HttpError(401, "Incorrect password");
     const res = NextResponse.json({ success: true });
     res.cookies.set({ ...sessionOptions(), value: createSession() });
