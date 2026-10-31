@@ -80,7 +80,31 @@ export async function POST(req: NextRequest) {
       },
     );
     if (!response.ok) {
-      console.error("AI upstream status", response.status);
+      const upstream = await response.json().catch(() => null);
+      const serialized = JSON.stringify(upstream);
+      const reason =
+        [
+          "customer_verification_required",
+          "insufficient_funds",
+          "quota_for_entity_exceeded",
+          "invalid_api_key",
+        ].find((code) => serialized.includes(code)) || "unknown";
+      console.error("AI upstream status", response.status, "reason", reason);
+      if (reason === "customer_verification_required")
+        throw new HttpError(
+          503,
+          "Vercel AI Gateway requires account verification. The team owner must add a valid payment method in Vercel AI Gateway to activate AI access.",
+        );
+      if (reason === "insufficient_funds")
+        throw new HttpError(
+          503,
+          "Vercel AI Gateway has insufficient credits. The team owner must add AI Gateway credits.",
+        );
+      if (reason === "quota_for_entity_exceeded")
+        throw new HttpError(
+          503,
+          "The Vercel AI Gateway spending limit has been reached.",
+        );
       throw new HttpError(
         502,
         response.status === 402 || response.status === 403
