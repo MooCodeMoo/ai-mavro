@@ -1,3 +1,4 @@
+import { validContact } from "@/lib/contact-validation";
 import { NextRequest, NextResponse } from "next/server";
 import { normalizePhotos } from "@/lib/photo-validation";
 import { getRules, saveCase } from "@/lib/database";
@@ -19,6 +20,14 @@ export async function POST(req: NextRequest) {
       throw new HttpError(
         400,
         "Confirm permission to store these details and photos",
+      );
+    if (
+      input.contactRequested &&
+      (input.customerName.trim().length < 2 || !validContact(input.contactInfo))
+    )
+      throw new HttpError(
+        400,
+        "Enter your full name and a valid email address or phone number",
       );
     input.photos = await normalizePhotos(input.photos);
     const treatment = resolveTreatment(input, await getRules(true));

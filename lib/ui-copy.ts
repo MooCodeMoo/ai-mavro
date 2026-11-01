@@ -1,5 +1,60 @@
 import type { Language, Localized } from "./domain";
 const messages = {
+  reportDraft: [
+    "Osnutek · ni oddan v pregled",
+    "Nacrt · nije predan na pregled",
+    "Draft · not submitted for review",
+    "Concept · niet ingediend voor beoordeling",
+  ],
+  print: [
+    "Natisni poročilo",
+    "Ispiši izvještaj",
+    "Print report",
+    "Rapport afdrukken",
+  ],
+  reportHint: [
+    "Poročilo prenesi ali natisni brez vnosa osebnih podatkov.",
+    "Preuzmi ili ispiši izvještaj bez unosa osobnih podataka.",
+    "Download or print your report without entering personal details.",
+    "Download of print je rapport zonder persoonsgegevens in te vullen.",
+  ],
+  contactSeller: [
+    "Želim, da me kontaktira prodajalec",
+    "Želim da me kontaktira prodajni predstavnik",
+    "I would like a sales representative to contact me",
+    "Ik wil contact met een verkoopadviseur",
+  ],
+  fullName: [
+    "Ime in priimek",
+    "Ime i prezime",
+    "Full name",
+    "Voor- en achternaam",
+  ],
+  emailOrPhone: [
+    "E-pošta ali telefon",
+    "E-pošta ili telefon",
+    "Email or phone",
+    "E-mail of telefoon",
+  ],
+  submitContact: [
+    "Pošlji zahtevo za stik",
+    "Pošalji zahtjev za kontakt",
+    "Send contact request",
+    "Contactverzoek versturen",
+  ],
+  contactSaved: [
+    "Zahteva za stik je shranjena za prodajalca.",
+    "Zahtjev za kontakt spremljen je za prodajnog predstavnika.",
+    "Your contact request has been saved for the sales team.",
+    "Je contactverzoek is opgeslagen voor het verkoopteam.",
+  ],
+  contactConsent: [
+    "Dovoljujem, da Mavro shrani ta primer in me kontaktira glede priporočene rešitve.",
+    "Dopuštam da Mavro spremi ovaj slučaj i kontaktira me u vezi s preporučenim rješenjem.",
+    "I allow Mavro to save this case and contact me about the recommended solution.",
+    "Ik geef Mavro toestemming deze aanvraag op te slaan en contact op te nemen over de aanbevolen oplossing.",
+  ],
+
   continue: ["Nadaljuj", "Nastavi", "Continue", "Doorgaan"],
   newCase: ["Nov primer", "Novi slučaj", "New case", "Nieuwe aanvraag"],
   photos: ["Fotografije", "Fotografije", "Photos", "Foto’s"],

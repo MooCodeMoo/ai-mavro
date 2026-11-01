@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 const config: NextConfig = {
   serverExternalPackages: ["@libsql/client", "pdfkit"],
   outputFileTracingIncludes: {
+    "/api/report": ["./public/fonts/**"],
     "/api/generate-pdf": ["./public/fonts/**"],
     "/api/send-pdf-email": ["./public/fonts/**"],
     "/api/cases/*/pdf": ["./public/fonts/**"],

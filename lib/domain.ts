@@ -49,6 +49,7 @@ export type AIAnalysis = {
   notes: string;
 };
 export type CaseInput = {
+  contactRequested?: boolean;
   substrate: string;
   contamination: string;
   language: Language;

@@ -227,12 +227,12 @@ export function useAdvisor() {
       if (errors.length) setMessage(errors[0]);
     });
   }
-  async function save() {
+  async function save(contactRequested = false) {
     await action("save", async () => {
-      const data = await jsonRequest<{ case: SavedCase }>(
-        "/api/diagnose",
-        input,
-      );
+      const data = await jsonRequest<{ case: SavedCase }>("/api/diagnose", {
+        ...input,
+        contactRequested,
+      });
       setSaved({ item: data.case, fingerprint });
       const ids = [data.case.id, ...history].slice(0, 20);
       setHistory(ids);
@@ -267,6 +267,27 @@ export function useAdvisor() {
       setAnalyses(restored.aiAnalysis ? [restored.aiAnalysis] : []);
       setAnalysisLanguage(restored.language);
       setStep(2);
+    });
+  }
+  async function report() {
+    if (savedCurrent && saved) {
+      await download();
+      return;
+    }
+    await action("report", async () => {
+      const response = await fetch("/api/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...input,
+          customerName: "",
+          contactInfo: "",
+          location: "",
+          consent: false,
+          contactRequested: false,
+        }),
+      });
+      await downloadResponse(response, "Mavro-report.pdf");
     });
   }
   async function download() {
@@ -337,6 +358,7 @@ export function useAdvisor() {
     analyze,
     save,
     restore,
+    report,
     download,
     email,
     removePhoto,

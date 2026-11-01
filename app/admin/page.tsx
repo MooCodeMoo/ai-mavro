@@ -208,6 +208,12 @@ export default function Admin() {
                     </time>
                   </div>
                   <h3>{item.input.customerName || "Brez imena"}</h3>
+                  {item.input.contactRequested && (
+                    <p>
+                      <strong>Želi stik s prodajalcem</strong> ·{" "}
+                      {item.input.contactInfo}
+                    </p>
+                  )}
                   <p>{item.input.location}</p>
                   <p>
                     {item.input.substrate} · {item.input.contamination}

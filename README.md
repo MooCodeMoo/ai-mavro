@@ -112,7 +112,7 @@ sandbox. Shared presentation styles and translated interface copy live in
 `components/use-advisor.ts` owns the live API workflow; recommendations come from
 `/api/recommend`, so administration edits apply to new recommendations. Saved
 cases retain their treatment snapshot. Changes to language, quantities or case
-details require another save before PDF/email actions are enabled. Language
+details invalidate saved-case exports; independent reports remain available. Language
 preferences and case IDs remain local to the device; photographs are not put in
 local storage. Conflicting AI photo results never auto-select a diagnosis.
 
@@ -121,3 +121,19 @@ SQLite database and actual PDF generation. Only the external AI response is
 mocked in that browser test. CI installs Chromium and runs this check after the
 production build. Actual provider billing/access and SMTP delivery are separate
 hosted configuration checks.
+
+## Report and sales contact actions
+
+The recommendation actions now separate PDF/printing from a sales callback.
+`POST /api/report` builds a server-validated PDF without creating a case, strips
+personal details, embeds normalized photographs from memory and labels the
+report as an unsubmitted draft. Printing uses a print stylesheet that excludes
+the contact form and navigation. Existing saved-case downloads retain their
+immutable snapshots.
+
+A sales contact request requires only a full name plus a valid email address or
+phone number, with explicit consent. It is saved as a private case with
+`contactRequested: true` and labelled in the administration. It does not create
+an Asana lead or send an email notification. Staff must check the administration
+for incoming requests. All action labels and form text support the four UI
+languages.

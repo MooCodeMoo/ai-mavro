@@ -163,22 +163,56 @@ try {
     .selectOption("0");
   await page.locator("#result-area").fill("100");
   await page.getByText("6,67–20 L", { exact: true }).waitFor();
-  await page.getByText("Informacije o stranki", { exact: false }).click();
+  let storedRequests = 0;
+  page.on("request", (r) => {
+    if (r.url().endsWith("/api/diagnose") && r.method() === "POST")
+      storedRequests++;
+  });
+  const quickDownload = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Prenesi PDF", exact: false }).click();
+  await (await quickDownload).saveAs(path.join(temporary, "anonymous.pdf"));
+  assert.equal(
+    (await readFile(path.join(temporary, "anonymous.pdf")))
+      .subarray(0, 4)
+      .toString(),
+    "%PDF",
+  );
+  assert.equal(storedRequests, 0);
+  assert.equal(await page.locator("#contact-name").count(), 0);
+  await page.evaluate(() => {
+    window.__printed = 0;
+    window.print = () => window.__printed++;
+  });
   await page
-    .getByLabel("Ime stranke", { exact: true })
+    .getByRole("button", { name: "Natisni poročilo", exact: false })
+    .click();
+  assert.equal(await page.evaluate(() => window.__printed), 1);
+  await page
+    .getByRole("button", {
+      name: "Želim, da me kontaktira prodajalec",
+      exact: false,
+    })
+    .click();
+  await page.emulateMedia({ media: "print" });
+  assert.equal(await page.locator("#contact-request").isVisible(), false);
+  await page.emulateMedia({ media: "screen" });
+  await page
+    .getByLabel("Ime in priimek", { exact: true })
     .fill("Črt Šušterič — test");
-  await page.getByLabel("Lokacija projekta", { exact: true }).fill("Ljubljana");
   await page
-    .getByLabel("Kontaktni podatki", { exact: true })
-    .fill("test@example.invalid");
+    .getByLabel("E-pošta ali telefon", { exact: true })
+    .fill("not-a-contact");
   const saveButton = page.getByRole("button", {
-    name: "Shrani za strokovni pregled / povpraševanje",
+    name: "Pošlji zahtevo za stik",
     exact: false,
   });
   assert.equal(await saveButton.isDisabled(), true);
   await page
+    .getByLabel("E-pošta ali telefon", { exact: true })
+    .fill("test@example.invalid");
+  await page
     .getByLabel(
-      "Dovoljujem shranjevanje podatkov in fotografij za obravnavo pri Mavru.",
+      "Dovoljujem, da Mavro shrani ta primer in me kontaktira glede priporočene rešitve.",
       { exact: true },
     )
     .check();
@@ -189,7 +223,10 @@ try {
   const response = await savedResponse;
   assert.equal(response.status(), 200);
   const savedCase = (await response.json()).case;
-  await page.getByText("Čaka na pregled", { exact: true }).waitFor();
+  assert.equal(savedCase.input.contactRequested, true);
+  await page
+    .getByText("Zahteva za stik je shranjena za prodajalca.", { exact: true })
+    .waitFor();
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Prenesi PDF", exact: false }).click();
   const download = await downloadPromise;
@@ -212,7 +249,7 @@ try {
   assert.equal(
     await page
       .getByRole("button", { name: "Preuzmi PDF", exact: false })
-      .isDisabled(),
+      .isEnabled(),
     true,
   );
   await page.locator("#language").selectOption("en");
@@ -291,6 +328,7 @@ try {
   await page
     .getByRole("heading", { name: "Črt Šušterič — test", exact: true })
     .waitFor();
+  await page.getByText("Želi stik s prodajalcem", { exact: true }).waitFor();
   await page.getByRole("button", { name: "Odpri primer", exact: true }).click();
   await page
     .getByRole("button", { name: "Potrdi pregled", exact: true })

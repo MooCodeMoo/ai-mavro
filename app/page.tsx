@@ -1,4 +1,5 @@
 "use client";
+import { validContact } from "@/lib/contact-validation";
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useRef } from "react";
@@ -20,6 +21,7 @@ export default function Home() {
   const { input, lang, t, step, busy, update } = a;
   const c = advisorCopy[lang],
     locked = !!busy;
+  const [contactOpen, setContactOpen] = useState(false);
   const [dragging, setDragging] = useState(false);
   return (
     <div className={s.app} lang={lang}>
@@ -361,118 +363,126 @@ export default function Home() {
               />
             )}
             <section
-              className={`${s.card} ${s.saveCard}`}
+              className={`${s.card} ${s.saveCard} ${s.reportActions}`}
               aria-label={copy(lang, "details")}
             >
-              <p className={s.saveHint}>{copy(lang, "saveHint")}</p>
-              <fieldset disabled={locked} className={s.fieldset}>
-                <details className={s.customerDetails}>
-                  <summary>
-                    {t.customerInfo.title} <span>{c.optional}</span>
-                  </summary>
-                  <div className={s.customerFields}>
-                    <label>
-                      {t.customerInfo.customerName}
-                      <input
-                        autoComplete="name"
-                        maxLength={200}
-                        value={input.customerName}
-                        onChange={(e) => update("customerName", e.target.value)}
-                      />
-                    </label>
-                    <label>
-                      {t.customerInfo.projectLocation}
-                      <input
-                        maxLength={300}
-                        value={input.location}
-                        onChange={(e) => update("location", e.target.value)}
-                      />
-                    </label>
-                    <label>
-                      {t.customerInfo.contactInfo}
-                      <input
-                        maxLength={300}
-                        value={input.contactInfo}
-                        onChange={(e) => update("contactInfo", e.target.value)}
-                      />
-                    </label>
-                  </div>
-                </details>
-                <label className={s.confirm}>
-                  <input
-                    type="checkbox"
-                    checked={input.consent}
-                    onChange={(e) => update("consent", e.target.checked)}
-                  />
-                  {copy(lang, "consent")}
-                </label>
-                <a
-                  className={s.privacyLink}
-                  href="https://mavro-int.shop/files/Privacy_statement_Mavro_International.pdf"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {copy(lang, "privacyLink")} ↗
-                </a>
+              <p className={s.saveHint}>{copy(lang, "reportHint")}</p>
+              <div className={s.reportButtons}>
                 <button
                   className={s.primary}
-                  disabled={
-                    locked || a.loading || !input.confirmed || !input.consent
-                  }
-                  onClick={() => void a.save()}
+                  disabled={locked || a.loading || !input.confirmed}
+                  onClick={() => void a.report()}
                 >
-                  {busy === "save" ? t.step4.saving : copy(lang, "request")}{" "}
-                  <span aria-hidden="true">→</span>
+                  {busy === "report"
+                    ? copy(lang, "loading")
+                    : t.step4.downloadPDF}{" "}
+                  <span aria-hidden="true">↓</span>
                 </button>
-              </fieldset>
-              {a.saved && (
-                <div className={s.saved}>
-                  <div className={s.savedStatus}>
-                    <strong>{copy(lang, a.saved.item.review)}</strong>
-                    <span>ID: {a.saved.item.id}</span>
-                  </div>
-                  {!a.savedCurrent && (
-                    <p className={s.changed} role="status">
-                      {copy(lang, "changes")}
-                    </p>
-                  )}
-                  <button
-                    className={s.primary}
-                    disabled={locked || !a.savedCurrent}
-                    onClick={() => void a.download()}
+                <button
+                  className={s.productLink}
+                  disabled={locked || a.loading || !input.confirmed}
+                  onClick={() => window.print()}
+                >
+                  {copy(lang, "print")} <span aria-hidden="true">↗</span>
+                </button>
+              </div>
+              <div className={s.contactSection}>
+                <button
+                  className={s.contactToggle}
+                  disabled={locked}
+                  aria-expanded={contactOpen}
+                  aria-controls="contact-request"
+                  onClick={() => setContactOpen(!contactOpen)}
+                >
+                  {copy(lang, "contactSeller")}{" "}
+                  <span aria-hidden="true">{contactOpen ? "−" : "＋"}</span>
+                </button>
+                {contactOpen && (
+                  <form
+                    id="contact-request"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (
+                        input.customerName.trim().length >= 2 &&
+                        validContact(input.contactInfo) &&
+                        input.consent
+                      )
+                        void a.save(true);
+                    }}
                   >
-                    {t.step4.downloadPDF} <span aria-hidden="true">↓</span>
-                  </button>
-                  <details className={s.email}>
-                    <summary>{t.step4.emailLabel}</summary>
-                    <label>
-                      {copy(lang, "email")}
-                      <input
-                        type="email"
-                        disabled={locked}
-                        maxLength={254}
-                        value={a.recipient}
-                        onChange={(e) => a.setRecipient(e.target.value)}
-                        placeholder={t.step4.emailPlaceholder}
-                      />
-                    </label>
-                    <button
-                      className={s.textButton}
-                      disabled={
-                        locked ||
-                        !a.savedCurrent ||
-                        !/^\S+@\S+\.\S+$/.test(a.recipient)
-                      }
-                      onClick={() => void a.email()}
-                    >
-                      {busy === "email"
-                        ? t.step4.sendingEmail
-                        : t.step4.sendEmail}{" "}
-                      →
-                    </button>
-                  </details>
-                </div>
-              )}
+                    <fieldset className={s.fieldset} disabled={locked}>
+                      <div className={s.contactFields}>
+                        <label htmlFor="contact-name">
+                          {copy(lang, "fullName")}
+                          <input
+                            id="contact-name"
+                            required
+                            minLength={2}
+                            maxLength={200}
+                            autoComplete="name"
+                            value={input.customerName}
+                            onChange={(e) =>
+                              update("customerName", e.target.value)
+                            }
+                          />
+                        </label>
+                        <label htmlFor="contact-channel">
+                          {copy(lang, "emailOrPhone")}
+                          <input
+                            id="contact-channel"
+                            required
+                            maxLength={254}
+                            value={input.contactInfo}
+                            onChange={(e) =>
+                              update("contactInfo", e.target.value)
+                            }
+                          />
+                        </label>
+                      </div>
+                      <label className={s.confirm}>
+                        <input
+                          type="checkbox"
+                          required
+                          checked={input.consent}
+                          onChange={(e) => update("consent", e.target.checked)}
+                        />
+                        {copy(lang, "contactConsent")}
+                      </label>
+                      <a
+                        className={s.privacyLink}
+                        href="https://mavro-int.shop/files/Privacy_statement_Mavro_International.pdf"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {copy(lang, "privacyLink")} ↗
+                      </a>
+                      <button
+                        className={s.primary}
+                        disabled={
+                          locked ||
+                          a.loading ||
+                          !input.confirmed ||
+                          !input.consent ||
+                          input.customerName.trim().length < 2 ||
+                          !validContact(input.contactInfo) ||
+                          (a.savedCurrent &&
+                            a.saved?.item.input.contactRequested === true)
+                        }
+                      >
+                        {busy === "save"
+                          ? t.step4.saving
+                          : copy(lang, "submitContact")}{" "}
+                        <span aria-hidden="true">→</span>
+                      </button>
+                    </fieldset>
+                  </form>
+                )}
+                {a.savedCurrent && a.saved?.item.input.contactRequested && (
+                  <p role="status" className={s.contactSuccess}>
+                    {copy(lang, "contactSaved")}
+                  </p>
+                )}
+              </div>
             </section>
           </>
         )}

@@ -1129,3 +1129,149 @@
   font-weight: 400;
   color: inherit;
 }
+.reportButtons {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+.reportButtons > .primary {
+  flex: 1;
+}
+.reportButtons > .productLink {
+  margin: 0;
+  justify-content: center;
+  min-width: 180px;
+  background: white;
+}
+.contactSection {
+  margin-top: 23px;
+  padding-top: 19px;
+  border-top: 1px solid #e5ecec;
+}
+.app .contactToggle {
+  width: 100%;
+  justify-content: space-between;
+  gap: 15px;
+  background: transparent;
+  border: 0;
+  padding: 4px 0;
+  color: #5a7171;
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.contactFields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 22px 0;
+}
+.contactFields label {
+  font-size: 11px;
+  font-weight: 400;
+  color: #809595;
+}
+.contactFields input {
+  font-size: 13px;
+  margin-top: 7px;
+  min-height: 43px;
+  border: 1px solid #dce5e5;
+  border-radius: 6px;
+  padding: 9px 11px;
+}
+.contactSuccess {
+  margin-top: 16px !important;
+  font-size: 12px;
+  color: #58796a;
+  line-height: 1.8;
+}
+@media (max-width: 640px) {
+  .reportButtons {
+    flex-direction: column;
+    gap: 9px;
+  }
+  .reportButtons > .productLink {
+    font-size: 12px;
+    padding: 12px;
+  }
+  .contactFields {
+    grid-template-columns: 1fr;
+  }
+  .contactToggle {
+    font-size: 11px;
+  }
+  .contactSuccess {
+    font-size: 11px;
+  }
+}
+@media print {
+  .app {
+    background: white !important;
+    color: #222;
+  }
+  .header {
+    height: auto;
+    padding: 0 0 20px;
+  }
+  .header .languagePicker,
+  .main > .heading,
+  .reportActions,
+  .below,
+  .history,
+  .liveFooter,
+  .message,
+  .outputSummary > .textButton,
+  .waterControl select,
+  .productLink,
+  .related {
+    display: none !important;
+  }
+  .main,
+  .resultMain {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+  .card {
+    border: 0;
+    box-shadow: none;
+    overflow: visible;
+  }
+  .outputSummary {
+    background: white;
+    padding: 12px 0;
+  }
+  .outputHero,
+  .outputProcess {
+    padding: 20px 0;
+  }
+  .facts {
+    margin: 0;
+    padding: 18px 0;
+  }
+  .outputSafety {
+    margin: 0;
+    padding: 15px;
+    break-inside: avoid;
+  }
+  .outputSources {
+    padding: 15px 0;
+  }
+  .outputProcess li {
+    break-inside: avoid;
+  }
+  .resultArea input {
+    border: 0;
+    padding: 0;
+  }
+  .output h3 {
+    color: #333;
+  }
+  .outputProcess li > p,
+  .outputSafety p,
+  .outputHero p,
+  .dilution,
+  .quantityNote {
+    color: #444;
+  }
+}

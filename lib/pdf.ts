@@ -4,7 +4,11 @@ import type { SavedCase } from "./domain";
 import { copy } from "./ui-copy";
 import { translations } from "./translations";
 import { findProduct } from "./products";
-export async function generatePDF(item: SavedCase): Promise<Buffer> {
+export async function generatePDF(
+  item: SavedCase,
+  photoData?: Record<string, string>,
+  unsaved = false,
+): Promise<Buffer> {
   const doc = new PDFDocument({
     size: "A4",
     margin: 48,
@@ -43,7 +47,9 @@ export async function generatePDF(item: SavedCase): Promise<Buffer> {
   line(t.customerInfo.contactInfo, item.input.contactInfo || "—");
   line(
     copy(lang, "status"),
-    copy(lang, item.review === "pending" ? "pending" : item.review),
+    unsaved
+      ? copy(lang, "reportDraft")
+      : copy(lang, item.review === "pending" ? "pending" : item.review),
   );
   if (item.reviewNote) doc.text(item.reviewNote);
   doc.text(
@@ -111,7 +117,9 @@ export async function generatePDF(item: SavedCase): Promise<Buffer> {
     doc.fontSize(12).text(photo.name);
     doc.moveDown();
     const { getPhoto } = await import("./database");
-    const data = await getPhoto(item.id, photo.id);
+    const data = photoData
+      ? photoData[photo.id]
+      : await getPhoto(item.id, photo.id);
     if (data) {
       try {
         doc.image(Buffer.from(data.split(",")[1], "base64"), 48, 90, {

@@ -69,6 +69,7 @@ export function parseCase(d: Record<string, unknown>): CaseInput {
     substrate: choice(d.substrate, SUBSTRATES),
     contamination: choice(d.contamination, CONTAMINATIONS),
     language: choice(d.language || "sl", LANGUAGES) as CaseInput["language"],
+    contactRequested: d.contactRequested === true,
     customerName: shortText(d.customerName),
     location: shortText(d.location, 300),
     contactInfo: shortText(d.contactInfo, 300),
