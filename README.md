@@ -1,396 +1,153 @@
-# 🧪 Mavro AI - Intelligent Surface Treatment Advisor
+# Mavro AI — surface treatment adviser
 
-> AI-powered contamination detection and product recommendation system for professional surface cleaning
+An upgrade of the existing Next.js app, keeping the adviser at `/` and administration at `/admin`. Supports Slovenian, Croatian, English and Dutch. All product recommendations come from the same database-backed rules edited by administrators.
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-38bdf8)](https://tailwindcss.com/)
-[![Claude AI](https://img.shields.io/badge/Claude-Sonnet%204-7c3aed)](https://www.anthropic.com/)
+## Run locally
 
-## ✨ Features
-
-### 🤖 AI-Powered Detection
-- **Automatic contamination identification** using Claude Vision API
-- **Surface type recognition** from uploaded photos
-- **Confidence scoring** for AI predictions (0-100%)
-- **Smart auto-fill** of selections based on analysis
-
-### 🎨 Professional Design
-- **Premium UI/UX** with sophisticated gradients and animations
-- **Responsive design** optimized for mobile and desktop
-- **Accessible** (WCAG AA compliant)
-- **Fast performance** with optimized loading
-
-### 💼 Product Recommendations
-- **Expert guidance** for surface cleaning
-- **Detailed instructions** with safety guidelines
-- **Dilution ratios** for each product
-- **Step-by-step application** procedures
-
----
-
-## 🚀 Quick Start (10 Minutes to Deploy!)
-
-### Option 1: Automated Setup ⚡
-
-**Mac/Linux:**
-```bash
-chmod +x setup.sh
-./setup.sh
-```
-
-**Windows:**
-```bash
-setup.bat
-```
-
-Then follow: **[QUICKSTART.md](QUICKSTART.md)** for deployment
-
-### Option 2: Manual Setup
-
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Activate professional design
-mv app/page-professional.tsx app/page.tsx
-mv app/globals-professional.css app/globals.css
-
-# 3. Run locally
+```sh
+npm ci
+cp .env.example .env.local
+# Set ADMIN_PASSWORD (12+ characters) and SESSION_SECRET (32+ characters).
+# APP_ORIGIN must match the browser origin exactly.
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) ✨
+The default local database is the existing `mavro-ai.db`. The previous `rules` and `analyses` tables are retained without modification. New versioned tables store reviewed-source rules and complete cases. The administration provides a private export of legacy tables. **Legacy import scripts are retained for reference only; they require their own separately installed `better-sqlite3` dependency and write only to old tables. Do not use them to publish new treatment rules. The running app no longer installs or uses `better-sqlite3`.**
 
----
+## Configure the existing deployment
 
-## 📚 Complete Documentation
+- Keep using the existing GitHub project, deployment and URL; no separate site is needed.
+- Set `APP_ORIGIN` to the exact production HTTPS origin, `ADMIN_PASSWORD` and a random `SESSION_SECRET`. Use separate credentials and databases for preview and production.
+- On Vercel or another serverless host, set `TURSO_DATABASE_URL` (libSQL URL) and `TURSO_AUTH_TOKEN`. A local filesystem is not durable on serverless hosts. The app deliberately refuses to use an implicit local database in production.
+- On a persistent Node host, `DATABASE_URL=file:/absolute/persistent-volume/mavro-ai.db` is supported. Take a backup before switching versions. If using a remote database, import the old SQLite database using the database provider's supported import process before starting the app if legacy data is needed there.
+- `DATABASE_URL` here is a **libSQL/SQLite** URL, not a PostgreSQL/Neon connection string. Never paste a PostgreSQL URL into it.
+- `ANTHROPIC_API_KEY` enables image analysis. Set `ANTHROPIC_MODEL` to a model supported by your Anthropic account. Without a key the UI keeps manual selection available; it never fabricates an analysis.
+- SMTP settings enable email. Without them PDF download remains available and email returns a clear configuration error. No email was sent during validation.
+- Only set `TRUSTED_IP_HEADER` when the deployment platform overwrites that header; otherwise limits are intentionally shared across visitors. Rate counters live in the database and work across server instances.
+- Back up the database, which includes private photos. A remote database quota and photo volume should be monitored. Use the admin deletion action for retention requests. There is no automatic retention policy that might silently delete existing customer data.
 
-| Guide | What You'll Learn | Time |
-|-------|-------------------|------|
-| **[QUICKSTART.md](QUICKSTART.md)** | Deploy to production in 10 minutes | 10 min |
-| **[DEPLOYMENT-GUIDE.md](DEPLOYMENT-GUIDE.md)** | Complete GitHub + Vercel setup | 20 min |
-| **[PROFESSIONAL-DESIGN.md](PROFESSIONAL-DESIGN.md)** | Design system and customization | 15 min |
-| **[VERSION-COMPARISON.md](VERSION-COMPARISON.md)** | Compare all 3 available versions | 5 min |
+See [product verification](docs/product-verification.md) for source checks and limitations. See `.env.example` for all settings.
 
----
+## Existing website integration
 
-## 🎯 Three Complete Versions Included
+The adviser already replaces the existing root page of this repository. If a different main website is intended, add a link to the deployed adviser or embed it after adding that website's exact HTTPS origin to `EMBED_ALLOWED_ORIGINS` and rebuilding:
 
-| Version | AI Detection | Premium Design | Best For |
-|---------|--------------|----------------|----------|
-| Original | ❌ | ❌ | Quick testing |
-| Enhanced | ✅ | ❌ | Functional MVP |
-| **Professional** ⭐ | ✅ | ✅ | **Production** |
-
-**Currently Active**: Professional Version with AI + Premium Design
-
-Switch between versions instantly - all files included!
-
----
-
-## 🌐 Deploy Online
-
-### Deploy to Vercel (Recommended)
-
-1. **Push to GitHub**: See [DEPLOYMENT-GUIDE.md](DEPLOYMENT-GUIDE.md)
-2. **Import to Vercel**: Connect your GitHub repo
-3. **Add API Key**: Set `ANTHROPIC_API_KEY` in environment variables
-4. **Deploy**: Click deploy and wait 2 minutes
-
-**Your live URL**: `https://mavro-ai.vercel.app`
-
-### Alternative: Deploy to Netlify
-
-Same process - full instructions in [DEPLOYMENT-GUIDE.md](DEPLOYMENT-GUIDE.md)
-
----
-
-## 🔑 Get Your API Key
-
-**Required for AI image detection:**
-
-1. Visit [console.anthropic.com](https://console.anthropic.com/)
-2. Sign up or log in
-3. Go to "API Keys"
-4. Create new key
-5. Copy key (starts with `sk-ant-api03-`)
-
-Add to `.env.local`:
-```env
-ANTHROPIC_API_KEY=sk-ant-api03-your_key_here
+```html
+<iframe
+  src="https://YOUR-EXISTING-APP-HOST/"
+  title="Mavro AI"
+  style="width:100%;height:1600px;border:0"
+  allow="camera"
+></iframe>
 ```
 
-**Note**: App works without API key (uses mock AI for testing)
+The placeholder is not a deployed URL. Cross-site browsers can block cookies in an iframe, affecting case access and saved reports. Prefer a link or a same-site subdomain for the full workflow; validate on the actual host before using the iframe. No arbitrary site is allowed to frame this application by default. Do not embed administration.
 
----
+## Workflow
 
-## 💻 Tech Stack
+1. Optionally enter customer details and add up to five photos. Photos are resized in the browser and re-encoded on the server, removing EXIF metadata. Photos sent for AI analysis go to Anthropic; this is explained before analysis.
+2. Confirm or manually select surface and contamination. Different photo results can be chosen individually. AI confidence is an uncalibrated estimate, not a guarantee.
+3. Add area and choose permitted dilution. Acidic cement cleaning requires explicit acid-resistance confirmation. Acidic metal cleaning requires a bare-metal confirmation. Unsupported combinations go to technical review.
+4. Confirm the selection and storage permission. Save the complete case, including private photos and an immutable snapshot of the treatment and its source/revision. All cases start as pending review.
+5. Download or email that saved snapshot. Unsaved changes require saving a new case. Owners access their cases using signed HttpOnly cookies; the local history contains only opaque IDs, not customer details. Owner access expires after seven days. Administrators retain access.
+6. In administration, review cases, inspect photographs, edit source-backed rules in all four languages, and manage technical review.
 
-- **Framework**: Next.js 16 (App Router)
-- **Language**: TypeScript 5
-- **Styling**: Tailwind CSS 4
-- **AI**: Anthropic Claude Sonnet 4
-- **Fonts**: Inter + Playfair Display
-- **Deployment**: Vercel / Netlify
+## Product and calculator behavior
 
----
+- 11 official Mavro products in a source-linked catalog; 59 initial surface/contamination rules. The application does not claim to cover the entire Mavro assortment.
+- Public source verification and technical approval of a particular case are separate. Seed rules are published as source-checked summaries. Every saved case still starts pending technical review.
+- No hardcoded commercial prices, stock claims or generic category-based alternatives. Alternatives must have a published rule for the exact same combination.
+- Product consumption uses published units: `Strip-Off Plus` is in kg. No kg-to-litre conversion is guessed.
+- Published coverage generally does not specify concentration basis. Numeric estimates are therefore limited to undiluted use, remain indicative, and never multiply coverage by the dilution factor. Use a test application for exact quantities. Products without a reliable coverage range do not receive a numeric estimate.
+- Pack options are alternatives, each calculated separately for the upper estimate; they are not a combined order. Availability is not claimed.
+- Optional protection is a candidate for technical confirmation, not an unconditional second treatment. MavroSeal is not automatically offered for roofs/paving where application constraints need further assessment.
 
-## 🎨 Design Highlights
+## Validation
 
-### Professional UI Features
-- ✨ Smooth fade-in and slide-in animations
-- 🎨 Sophisticated blue-emerald gradient theme
-- 🔍 Step-by-step numbered flow
-- 📱 Fully responsive mobile design
-- ♿ WCAG AA accessibility compliant
-- 🎯 Glass morphism effects
-- 💎 Premium typography pairing
-
-### Interactive Elements
-- Hover lift effects on buttons
-- Loading spinners during AI analysis
-- Animated confidence meters
-- Color-coded result cards
-- Smooth transitions throughout
-
----
-
-## 📊 How It Works
-
-```
-1. Upload Photo
-   ↓
-2. AI Analyzes Image
-   ↓
-3. Detects Contamination + Surface
-   ↓
-4. Auto-fills Selections
-   ↓
-5. Shows Product Recommendation
-   ↓
-6. Provides Application Instructions
-```
-
----
-
-## 🧪 Supported Detection
-
-### Surfaces
-- Concrete
-- Brick
-- Render / mineral plaster
-- Natural stone (soft/hard)
-- Roof tiles
-- Paving stones
-
-### Contaminations
-- Green deposits (algae/moss/lichen)
-- Black mould
-- General dirt / traffic film
-- Efflorescence / cement veil
-- Rust / oxide
-- Oil / grease
-- Graffiti
-
----
-
-## 💰 Cost Breakdown
-
-### Hosting (Vercel/Netlify)
-- **Free Tier**: Perfect for testing and low-traffic
-- **Pro Tier**: $20/month for production apps
-
-### AI API (Anthropic)
-- **Per Image**: $0.01 - $0.03 per analysis
-- **Monthly**: $10 - $50 depending on usage
-- **Free Credits**: Available for new accounts
-
-**Total**: Can run entirely FREE for testing!
-
----
-
-## 🏗️ Project Structure
-
-```
-mavro-ai/
-├── app/
-│   ├── api/
-│   │   ├── analyze-image/    # AI vision endpoint
-│   │   └── diagnose/         # Data collection
-│   ├── page.tsx              # Main UI (Professional)
-│   ├── page-professional.tsx # Professional version
-│   ├── page-enhanced.tsx     # Enhanced version
-│   └── globals.css           # Styles
-├── public/                   # Static assets
-├── setup.sh / setup.bat      # Quick setup scripts
-└── [Documentation files]
-```
-
----
-
-## 🛠️ Development Commands
-
-```bash
-# Install dependencies
-npm install
-
-# Run development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
-
-# Run linter
+```sh
+npm test             # meaningful domain and route integration tests, isolated temp database
 npm run lint
+npm run typecheck
+npm run build
 ```
 
----
+Tests cover previous incorrect fallthroughs, acid-sensitive substrates, correct consumption units, inactive rules, four-language completeness, actual admin rule edits, unchanged case snapshots, case/photo access control, Unicode PDF generation, disabled services and concurrent rate limits. Browser checks additionally cover responsive layout, saving, PDF download, administration and Croatian instructions.
 
-## 📈 Performance Metrics
+PDF generation uses PDFKit and a bundled licensed DejaVu font. No Python, ReportLab, shell execution or user-supplied scripts/attachments are needed. Reports and emails are generated from server-stored data rather than accepting client-authored recommendations or PDF files.
 
-- ⚡ **Lighthouse Performance**: 95+/100
-- ♿ **Accessibility Score**: 98/100
-- 📱 **Mobile Optimized**: 100%
-- 🎨 **Core Web Vitals**: All Green
-- 🚀 **First Paint**: < 1s
-- ⏱️ **Time to Interactive**: < 2s
+`npm run format` formats the maintained application code. Old import scripts are retained for reference and explicitly scoped as legacy CommonJS in ESLint.
 
----
+To repeat the browser checks, run `npx playwright install chromium` and `npm run build && npm run test:browser`. `CHROMIUM_EXECUTABLE_PATH` can select an already installed Chromium binary. `BROWSER_OUTPUT_DIR` optionally writes synthetic-data screenshots and a PDF outside the repository. The script creates an isolated temporary database, generates test-only credentials, starts/stops its own local production server and never sends live email or calls the AI provider.
 
-## 🔒 Security & Best Practices
+## Internal colleague testing
 
-✅ API keys in environment variables only  
-✅ No sensitive data in client code  
-✅ HTTPS enforced  
-✅ Input validation  
-✅ Rate limiting ready  
-✅ CORS configured  
-✅ XSS protection  
+The protected `improve/mavro-advisor-verified-workflow` Vercel preview can use
+`MAVRO_STORAGE=blob` with a private Vercel Blob store and its server-only
+`BLOB_READ_WRITE_TOKEN`. This small internal backend stores case metadata,
+photos, shared rules and rate counters durably; ETag conditional writes avoid
+lost concurrent updates. It is capped at 300 cases. The existing libSQL backend
+remains available by leaving `MAVRO_STORAGE` unset.
 
----
+With `INTERNAL_TEST_MODE=1`, `SESSION_SECRET`, and Vercel preview/branch system
+variables matching that branch, users admitted by Vercel Deployment Protection
+can enter the internal administration without another password. All admitted
+preview testers have administrative access. Keep deployment protection enabled;
+never share its bypass links publicly. This mode is disabled on production and
+other branches. Production still requires `ADMIN_PASSWORD` and secure sessions.
 
-## 🤝 Contributing
+`AI_GATEWAY_ENABLED=1` uses Vercel AI Gateway with the deployment OIDC identity
+(or a server-only `AI_GATEWAY_API_KEY`) and `AI_GATEWAY_MODEL`. The verified
+model identifier is `anthropic/claude-sonnet-4.6`. Account credits or verification
+may be required; unavailable AI returns an explicit error and manual selection
+remains usable. Without this flag, the existing direct Anthropic configuration
+is used. SMTP is optional and is not configured for this internal trial.
 
-We welcome contributions! To contribute:
+## Implemented adviser interface
 
-1. Fork the repository
-2. Create feature branch: `git checkout -b feature/YourFeature`
-3. Commit changes: `git commit -m 'Add YourFeature'`
-4. Push to branch: `git push origin feature/YourFeature`
-5. Submit Pull Request
+The root `/` uses the approved minimal photo → confirmation → recommendation
+interface. The separate `/preview` route remains an explicitly labelled design
+sandbox. Shared presentation styles and translated interface copy live in
+`components/advisor.module.css` and `lib/advisor-copy.ts`.
 
----
+`components/use-advisor.ts` owns the live API workflow; recommendations come from
+`/api/recommend`, so administration edits apply to new recommendations. Saved
+cases retain their treatment snapshot. Changes to language, quantities or case
+details invalidate saved-case exports; independent reports remain available. Language
+preferences and case IDs remain local to the device; photographs are not put in
+local storage. Conflicting AI photo results never auto-select a diagnosis.
 
-## 📝 License
+`npm run test:browser` exercises the full root workflow against an isolated
+SQLite database and actual PDF generation. Only the external AI response is
+mocked in that browser test. CI installs Chromium and runs this check after the
+production build. Actual provider billing/access and SMTP delivery are separate
+hosted configuration checks.
 
-Proprietary software for Mavro internal use.
+## Report and sales contact actions
 
----
+The recommendation actions now separate PDF/printing from a sales callback.
+`POST /api/report` builds a server-validated PDF without creating a case, strips
+personal details, embeds normalized photographs from memory and labels the
+report as an unsubmitted draft. Printing uses a print stylesheet that excludes
+the contact form and navigation. Existing saved-case downloads retain their
+immutable snapshots.
 
-## 🆘 Need Help?
+A sales contact request requires only a full name plus a valid email address or
+phone number, with explicit consent. It is saved as a private case with
+`contactRequested: true` and labelled in the administration. It does not create
+an Asana lead or send an email notification. Staff must check the administration
+for incoming requests. All action labels and form text support the four UI
+languages.
 
-### Quick Answers
-- **"How do I deploy?"** → See [QUICKSTART.md](QUICKSTART.md)
-- **"How do I customize colors?"** → See [PROFESSIONAL-DESIGN.md](PROFESSIONAL-DESIGN.md)
-- **"Which version should I use?"** → See [VERSION-COMPARISON.md](VERSION-COMPARISON.md)
-- **"Deployment failed?"** → See [DEPLOYMENT-GUIDE.md](DEPLOYMENT-GUIDE.md) Troubleshooting
+## AI-first result flow and corrections
 
-### Support Channels
-- **Documentation**: Read the guides above
-- **GitHub Issues**: [Create an issue](https://github.com/YOUR_USERNAME/mavro-ai/issues)
-- **Email**: Contact your team lead
+A completed image analysis opens the recommendation immediately. Recognized
+suggestions remain unconfirmed drafts until the visitor checks them before
+export/contact. Surface and contamination can be edited from the result summary.
+An unclear image opens an explicit unrecognized result with a manual-edit action;
+it never reuses an earlier diagnosis. Multiple conflicting photos show an
+uncertainty note and do not permit unconfirmed exports.
 
----
-
-## 🗺️ Future Roadmap
-
-### ✅ Completed (v1.0)
-- [x] AI image detection
-- [x] Professional UI design
-- [x] Product recommendations
-- [x] Deployment ready
-
-### 🚧 Planned (v2.0)
-- [ ] User authentication
-- [ ] Treatment history
-- [ ] Multi-language support
-- [ ] PDF reports
-- [ ] Dark mode
-
-### 💡 Future Ideas (v3.0)
-- [ ] Mobile app
-- [ ] Offline mode
-- [ ] Product inventory tracking
-- [ ] Analytics dashboard
-- [ ] API for integrations
-
----
-
-## 🎓 Learning Resources
-
-**New to these technologies?**
-
-- [Next.js Tutorial](https://nextjs.org/learn)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Tailwind CSS Docs](https://tailwindcss.com/docs)
-- [Vercel Deployment](https://vercel.com/docs)
-
----
-
-## ✅ Pre-Deployment Checklist
-
-Before deploying to production:
-
-- [ ] Professional design activated
-- [ ] Environment variables configured
-- [ ] API key obtained from Anthropic
-- [ ] Tested locally with `npm run dev`
-- [ ] Tested AI analysis works
-- [ ] Code committed to GitHub
-- [ ] Repository is public/accessible
-- [ ] Ready to share URL with team
-
----
-
-## 🎉 Success Stories
-
-*"Deployed in under 10 minutes! The professional design impressed our stakeholders."* - Development Team
-
-*"AI detection works surprisingly well on real building photos."* - QA Tester
-
-*"The documentation made deployment a breeze."* - Operations Team
-
----
-
-## 📞 Quick Links
-
-- 🚀 [Deploy Now (QUICKSTART)](QUICKSTART.md)
-- 📖 [Full Deployment Guide](DEPLOYMENT-GUIDE.md)
-- 🎨 [Design Documentation](PROFESSIONAL-DESIGN.md)
-- 📊 [Version Comparison](VERSION-COMPARISON.md)
-- 🔑 [Get API Key](https://console.anthropic.com/)
-- ☁️ [Deploy to Vercel](https://vercel.com)
-
----
-
-<div align="center">
-
-## 🌟 Ready to Get Started?
-
-**Choose your path:**
-
-[⚡ Quick Deploy (10 min)](QUICKSTART.md) • [📚 Learn More](DEPLOYMENT-GUIDE.md) • [🎨 Customize Design](PROFESSIONAL-DESIGN.md)
-
----
-
-**Built with ❤️ for Mavro**
-
-Professional surface treatment, powered by AI
-
-*Making industrial cleaning intelligent and accessible*
-
-</div>
+Saved cases retain the original AI suggestion alongside the final human selection.
+The administration marks differences as corrected AI selections. These records do
+not train Claude or get automatically injected into subsequent AI requests.
+Unsaved edits and standalone PDF downloads do not create a feedback record.
