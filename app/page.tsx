@@ -153,7 +153,7 @@ export default function Home() {
                             disabled={locked}
                             onClick={() => {
                               a.chooseAnalysis(a.analyses[i]!);
-                              a.setStep(1);
+                              a.setStep(2);
                             }}
                           >
                             {copy(lang, "choose")} →
@@ -355,6 +355,7 @@ export default function Home() {
               <AdvisorResult
                 input={input}
                 treatment={a.displayedTreatment}
+                analysisLanguage={a.analysisLanguage}
                 refreshing={a.loading && !a.savedCurrent}
                 busy={locked}
                 onEdit={() => a.setStep(1)}
@@ -367,6 +368,15 @@ export default function Home() {
               aria-label={copy(lang, "details")}
             >
               <p className={s.saveHint}>{copy(lang, "reportHint")}</p>
+              <label className={s.confirm}>
+                <input
+                  type="checkbox"
+                  disabled={locked || !input.substrate || !input.contamination}
+                  checked={input.confirmed}
+                  onChange={(e) => update("confirmed", e.target.checked)}
+                />
+                {copy(lang, "confirm")}
+              </label>
               <div className={s.reportButtons}>
                 <button
                   className={s.primary}

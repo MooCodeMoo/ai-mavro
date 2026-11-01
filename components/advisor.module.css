@@ -1275,3 +1275,29 @@
     color: #444;
   }
 }
+
+.aiSummary {
+  padding: 16px 30px;
+  border-bottom: 1px solid #edf1f1;
+  font-size: 11px;
+  color: #8a9e9e;
+}
+.aiSummary > span {
+  display: block;
+  font-size: 9px;
+  color: #829898;
+  letter-spacing: 0.3px;
+  margin-bottom: 6px;
+}
+.aiSummary > p {
+  line-height: 1.8;
+}
+.aiSummary > p + p {
+  margin-top: 8px !important;
+}
+@media (max-width: 640px) {
+  .aiSummary {
+    padding: 15px 22px;
+    font-size: 10px;
+  }
+}

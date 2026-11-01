@@ -1,5 +1,19 @@
 import type { Language, Localized } from "./domain";
 const messages = {
+  aiProposal: ["AI predlog", "AI prijedlog", "AI suggestion", "AI-voorstel"],
+  aiUnknown: [
+    "AI površine ali umazanije ni mogel zanesljivo prepoznati. Popravi izbor ročno.",
+    "AI nije mogao pouzdano prepoznati površinu ili nečistoću. Ručno ispravi odabir.",
+    "AI could not reliably identify the surface or contamination. Edit the selection manually.",
+    "AI kon de ondergrond of vervuiling niet betrouwbaar herkennen. Pas de selectie handmatig aan.",
+  ],
+  editSelection: [
+    "Popravi izbor",
+    "Ispravi odabir",
+    "Edit selection",
+    "Selectie aanpassen",
+  ],
+
   reportDraft: [
     "Osnutek · ni oddan v pregled",
     "Nacrt · nije predan na pregled",

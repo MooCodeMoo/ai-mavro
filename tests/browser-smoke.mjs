@@ -104,10 +104,17 @@ try {
     .getByRole("button", { name: "Analiziraj z AI", exact: true })
     .click();
   await page
-    .getByRole("button", {
-      name: "Izberi rezultat te fotografije",
-      exact: false,
-    })
+    .getByRole("heading", { name: "FacadeClean HC", exact: true })
+    .waitFor();
+  assert.equal(await page.locator("#substrate").count(), 0);
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Prenesi PDF", exact: false })
+      .isDisabled(),
+    true,
+  );
+  await page
+    .getByRole("button", { name: "Popravi izbor", exact: true })
     .click();
   assert.equal(aiCalls, 1);
   assert.equal(await page.locator("#substrate").inputValue(), "Concrete");
@@ -130,7 +137,9 @@ try {
     .waitFor();
   await page.locator("#result-area").fill("100");
   await page.getByText("25–100 kg", { exact: true }).waitFor();
-  await page.getByRole("button", { name: "Spremeni", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Popravi izbor", exact: true })
+    .click();
   await page.locator("#substrate").selectOption("Concrete");
   await page
     .locator("#contamination")
@@ -352,6 +361,48 @@ try {
       path: path.join(output, "admin.png"),
       fullPage: true,
     });
+  await page.goto(origin);
+  await page.unroute("**/api/analyze-image");
+  await page.route("**/api/analyze-image", (route) =>
+    route.fulfill({
+      json: {
+        analysis: {
+          surfaceSuggestion: null,
+          detectedContamination: null,
+          confidence: 0,
+          notes: "Površine ni mogoče prepoznati.",
+        },
+      },
+    }),
+  );
+  await page
+    .locator("input[type=file]")
+    .first()
+    .setInputFiles({
+      name: "unknown.png",
+      mimeType: "image/png",
+      buffer: image,
+    });
+  await page
+    .getByRole("button", { name: "Analiziraj z AI", exact: true })
+    .click();
+  await page
+    .getByText(
+      "AI površine ali umazanije ni mogel zanesljivo prepoznati. Popravi izbor ročno.",
+      { exact: true },
+    )
+    .waitFor();
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Prenesi PDF", exact: false })
+      .isDisabled(),
+    true,
+  );
+  await page
+    .getByRole("button", { name: "Popravi izbor", exact: true })
+    .click();
+  assert.equal(await page.locator("#substrate").inputValue(), "");
+  assert.equal(await page.locator("#contamination").inputValue(), "");
   assert.deepEqual(errors, []);
   console.log(
     "Browser checks passed: mocked AI proposal and manual confirmation, wood/paint correction, editable quantity without losing focus, dilution estimate guard, real case/photo/PDF, all four languages, immutable case restore, private administration and review.",

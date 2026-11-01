@@ -137,3 +137,17 @@ phone number, with explicit consent. It is saved as a private case with
 an Asana lead or send an email notification. Staff must check the administration
 for incoming requests. All action labels and form text support the four UI
 languages.
+
+## AI-first result flow and corrections
+
+A completed image analysis opens the recommendation immediately. Recognized
+suggestions remain unconfirmed drafts until the visitor checks them before
+export/contact. Surface and contamination can be edited from the result summary.
+An unclear image opens an explicit unrecognized result with a manual-edit action;
+it never reuses an earlier diagnosis. Multiple conflicting photos show an
+uncertainty note and do not permit unconfirmed exports.
+
+Saved cases retain the original AI suggestion alongside the final human selection.
+The administration marks differences as corrected AI selections. These records do
+not train Claude or get automatically injected into subsequent AI requests.
+Unsaved edits and standalone PDF downloads do not create a feedback record.

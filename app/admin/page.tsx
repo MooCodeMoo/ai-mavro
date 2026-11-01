@@ -208,6 +208,21 @@ export default function Admin() {
                     </time>
                   </div>
                   <h3>{item.input.customerName || "Brez imena"}</h3>
+                  {item.input.aiAnalysis &&
+                    ((item.input.aiAnalysis.surfaceSuggestion &&
+                      item.input.aiAnalysis.surfaceSuggestion !==
+                        item.input.substrate) ||
+                      (item.input.aiAnalysis.detectedContamination &&
+                        item.input.aiAnalysis.detectedContamination !==
+                          item.input.contamination)) && (
+                      <p>
+                        <strong>AI izbor popravljen</strong>
+                        <br />
+                        Prvotni predlog:{" "}
+                        {item.input.aiAnalysis.surfaceSuggestion || "—"} ·{" "}
+                        {item.input.aiAnalysis.detectedContamination || "—"}
+                      </p>
+                    )}
                   {item.input.contactRequested && (
                     <p>
                       <strong>Želi stik s prodajalcem</strong> ·{" "}

@@ -180,8 +180,8 @@ export function useAdvisor() {
   function chooseAnalysis(analysis: AIAnalysis) {
     setInput((prev) => ({
       ...prev,
-      substrate: analysis.surfaceSuggestion || prev.substrate,
-      contamination: analysis.detectedContamination || prev.contamination,
+      substrate: analysis.surfaceSuggestion || "",
+      contamination: analysis.detectedContamination || "",
       aiAnalysis: analysis,
       waterParts: 0,
       confirmed: false,
@@ -210,20 +210,34 @@ export function useAdvisor() {
         }),
       );
       setAnalyses(next);
-      const first = next[0];
-      if (
-        first &&
-        first.confidence >= 0.8 &&
-        first.surfaceSuggestion &&
-        first.detectedContamination &&
-        next.every(
-          (item) =>
-            !item ||
-            (item.surfaceSuggestion === first.surfaceSuggestion &&
-              item.detectedContamination === first.detectedContamination),
+      const candidates = next.filter((item): item is AIAnalysis => !!item);
+      const best = [...candidates]
+        .sort((a, b) => b.confidence - a.confidence)
+        .find((item) => item.surfaceSuggestion && item.detectedContamination);
+      if (best) {
+        chooseAnalysis(best);
+        setStep(2);
+        if (
+          candidates.some(
+            (item) =>
+              item.surfaceSuggestion !== best.surfaceSuggestion ||
+              item.detectedContamination !== best.detectedContamination,
+          )
         )
-      )
-        chooseAnalysis(first);
+          setMessage(copy(lang, "uncertainty"));
+      } else if (candidates.length) {
+        setInput((prev) => ({
+          ...prev,
+          substrate: "",
+          contamination: "",
+          aiAnalysis: candidates[0],
+          confirmed: false,
+          waterParts: 0,
+          acidResistant: false,
+          uncoated: false,
+        }));
+        setStep(2);
+      }
       if (errors.length) setMessage(errors[0]);
     });
   }

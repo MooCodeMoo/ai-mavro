@@ -10,6 +10,7 @@ export function AdvisorResult({
   treatment,
   busy,
   refreshing,
+  analysisLanguage,
   onEdit,
   onArea,
   onWater,
@@ -18,6 +19,7 @@ export function AdvisorResult({
   treatment: Treatment | null;
   busy: boolean;
   refreshing: boolean;
+  analysisLanguage: CaseInput["language"];
   onEdit: () => void;
   onArea: (area: number | null) => void;
   onWater: (parts: number) => void;
@@ -47,17 +49,29 @@ export function AdvisorResult({
         <dl>
           <div>
             <dt>{t.selectedSurface}</dt>
-            <dd>{labels.surfaces[input.substrate]}</dd>
+            <dd>{labels.surfaces[input.substrate] || "—"}</dd>
           </div>
           <div>
             <dt>{t.selectedDirt}</dt>
-            <dd>{labels.contaminations[input.contamination]}</dd>
+            <dd>{labels.contaminations[input.contamination] || "—"}</dd>
           </div>
         </dl>
         <button disabled={busy} className={s.textButton} onClick={onEdit}>
-          {t.edit}
+          {copy(language, "editSelection")}
         </button>
       </div>
+      {input.aiAnalysis && (
+        <div className={s.aiSummary}>
+          <span>
+            {copy(language, "aiProposal")} ·{" "}
+            {Math.round(input.aiAnalysis.confidence * 100)}%
+          </span>
+          <p lang={analysisLanguage}>{input.aiAnalysis.notes}</p>
+          {(!input.substrate || !input.contamination) && (
+            <p>{copy(language, "aiUnknown")}</p>
+          )}
+        </div>
+      )}
       {treatment && product ? (
         <>
           <div className={s.outputHero}>
