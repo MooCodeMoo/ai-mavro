@@ -308,6 +308,10 @@ try {
   await page
     .getByRole("heading", { name: "FacadeClean HC", exact: true })
     .waitFor();
+  await page
+    .locator("button:not([disabled])")
+    .filter({ hasText: "Prenesi PDF" })
+    .waitFor();
   assert.equal(
     await page
       .getByRole("button", { name: "Prenesi PDF", exact: false })
